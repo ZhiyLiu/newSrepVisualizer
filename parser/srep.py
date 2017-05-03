@@ -1,22 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Feb 12 10:42:25 2014
-
-@author: jvicory & jphong
-"""
-
-import numpy
-import os
-import vtk, qt, ctk, slicer
+import numpy as np
+import vtk
 
 class spoke:
     def __init__(self, ux, uy, uz, r):
-	self.U = numpy.array([ux,uy,uz])
+	self.U = np.array([ux,uy,uz])
 	self.r = r
 
 class hub:
     def __init__(self, x, y, z):
-	self.P = numpy.array([x,y,z])
+	self.P = np.array([x,y,z])
 
 class atom:
     def __init__(self, hub):
@@ -37,11 +30,11 @@ class atom:
     def isCrest(self):
 	return hasattr(self,'crestSpoke')
 
-class srep:
+class figure:
     def __init__(self, numRows, numCols):
 	self.numRows = numRows
 	self.numCols = numCols
-	self.atoms = numpy.ndarray([numRows,numCols],dtype=object)
+	self.atoms = np.ndarray([numRows,numCols],dtype=object)
 
     def addAtom(self, row, col, atom):
 	self.atoms[row,col] = atom
@@ -80,7 +73,27 @@ class srep:
 
 	self.addAtom(row,col,newatom)
 
-    def readSrepFromM3D(filename):
+class srep:
+    def __init__(self):
+        self.fig = None
+        self.medialMesh = None
+
+    def getMedialMesh(self):
+        # \TODO: more efficient way of iterating over the hub positions
+        points = vtk.vtkPoints()
+        for c in range(self.fig.numcols):
+            for r in range(self.fig.numRows):
+                points.InsertNextPoint( self.fig.atoms[r,c].hub.P )
+
+        return None
+
+    def getSectionDict(self, lines, start, stop):
+	section = [line.strip(';') for line in lines[start:stop]]
+	sectiondict = dict(line.split(' = ') for line in section)
+	return sectiondict
+
+
+    def readSrepFromM3D(self, filename):
 	f = open(filename,'r')
 
 	lines = [line.strip() for line in f.readlines()]
@@ -89,58 +102,21 @@ class srep:
 	coloridx = lines.index('color {')
 	endidx = lines.index('}',coloridx)
 
-	figparams = getSectionDict(lines,figidx+1,coloridx)
+	figparams = self.getSectionDict(lines,figidx+1,coloridx)
 	numrows = int(figparams['numRows'])
 	numcols = int(figparams['numColumns'])
 
-	fig = srep.figure(numrows,numcols)
+	fig = figure(numrows,numcols)
 
 	primidx = endidx + 1;
 
 	for row in range(numrows):
 	    for col in range(numcols):
 		endprimidx = lines.index('}',primidx)
-		primsection = getSectionDict(lines,primidx+1,endprimidx)
+		primsection = self.getSectionDict(lines,primidx+1,endprimidx)
 		fig.addAtomFromDict(row,col,primsection)
 		primidx = endprimidx + 1;
 
-	return fig
+	self.fig = fig
 
 
-    def getSectionDict(lines, start, stop):
-	section = [line.strip(';') for line in lines[start:stop]]
-	sectiondict = dict(line.split(' = ') for line in section)
-	return sectiondict
-
-
-#class srepFileDialog:
-#
-#    def __init__(self, parent):
-#	self.parent = parent
-#	parent.fileType = 'M3DFile'
-#	parent.description = 'M3D'
-#	parent.action = slicer.qSlicerFileDialog.Read
-#
-#    def isMimeDataAccepted(self):
-#        accept = self.parent.mimeData().hasFormat("text/uri-list")
-#	self.parent.acceptMimeData(accept)
-#
-#    def dropEvent(self):
-#	self.parent.dropEvent().accept()
-#
-#    def execDialog(self):
-#	print 'exec'
-#
-#class XYZFileDialog:
-#    def __init__(self, parent):
-#	self.parent = parent
-#      parent.fileType = 'XYZFile'
-#      parent.description = 'XYZ'
-#      parent.action = slicer.qSlicerFileDialog.Read
-#  def isMimeDataAccepted(self):
-#      accept = self.parent.mimeData().hasFormat("text/uri-list")
-#      self.parent.acceptMimeData(accept)
-#  def dropEvent(self):
-#      self.parent.dropEvent().accept()
-#  def execDialog(self):
-#      print 'exec'

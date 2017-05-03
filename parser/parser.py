@@ -29,11 +29,6 @@ class parser(ScriptedLoadableModule):
     and Steve Pieper, Isomics, Inc. and was partially funded by NIH grant 3P41RR013218-12S1.
 """ # replace with organization, grant and thanks.
 
-class parserFileDialog:
-    def __init__(self, parent):
-        self.parent = parent
-
-
 #
 # parserWidget
 #
@@ -76,29 +71,26 @@ class parserWidget(ScriptedLoadableModuleWidget):
     #
     # Apply Button
     #
-    self.applyButton = qt.QPushButton("Apply")
+    self.applyButton = qt.QPushButton("Select M3D File")
     self.applyButton.toolTip = "Run the algorithm."
-    self.applyButton.enabled = False
+    #self.applyButton.enabled = True
     parametersFormLayout.addRow(self.applyButton)
 
     # connections
     self.applyButton.connect('clicked(bool)', self.onApplyButton)
-    self.inputSelector.connect("currentNodeChanged(vtkMRMLNode*)", self.onSelect)
 
     # Add vertical spacer
     self.layout.addStretch(1)
-
-    # Refresh Apply button state
-    self.onSelect()
 
   def cleanup(self):
     pass
 
   def onSelect(self):
-    self.applyButton.enabled = self.inputSelector.currentNode()
+    self.applyButton.enabled = True
 
   def onApplyButton(self):
     logic = parserLogic()
+    logic.run()
 
 #
 # parserLogic
@@ -164,27 +156,45 @@ class parserLogic(ScriptedLoadableModuleLogic):
     annotationLogic = slicer.modules.annotations.logic()
     annotationLogic.CreateSnapShot(name, description, type, 1, imageData)
 
-  def run(self, inputVolume, outputVolume, imageThreshold, enableScreenshots=0):
+  def run(self):
     """
     Run the actual algorithm
     """
-
-    if not self.isValidInputOutputData(inputVolume, outputVolume):
-      slicer.util.errorDisplay('Input volume is the same as output volume. Choose a different output volume.')
-      return False
-
+    filename = qt.QFileDialog.getOpenFileName()
+    s = srep.srep()
+    s.readSrepFromM3D(filename)
     logging.info('Processing started')
+    points = vtk.vtkPoints()
+    for c in range(s.fig.numCols):
+        for r in range(s.fig.numRows):
+            points.InsertNextPoint( s.fig.atoms[r,c].hub.P )
+    polydata = vtk.vtkPolyData()
+    polydata.SetPoints(points)
 
-    # Compute the thresholded output volume using the Threshold Scalar Volume CLI module
-    cliParams = {'InputVolume': inputVolume.GetID(), 'OutputVolume': outputVolume.GetID(), 'ThresholdValue' : imageThreshold, 'ThresholdType' : 'Above'}
-    cliNode = slicer.cli.run(slicer.modules.thresholdscalarvolume, None, cliParams, wait_for_completion=True)
+    points_1st_quad = vtk.vtkPoints()
+    points_1st_quad.InsertNextPoint( s.fig.atoms[0,0].hub.P )
+    points_1st_quad.InsertNextPoint( s.fig.atoms[1,0].hub.P )
+    points_1st_quad.InsertNextPoint( s.fig.atoms[1,1].hub.P )
+    points_1st_quad.InsertNextPoint( s.fig.atoms[0,1].hub.P )
 
-    # Capture screenshot
-    if enableScreenshots:
-      self.takeScreenshot('parserTest-Start','MyScreenshot',-1)
+    quad = vtk.vtkQuad()
+    quad.GetPointIds().SetId(0,0)
+    quad.GetPointIds().SetId(1,1)
+    quad.GetPointIds().SetId(2,2)
+    quad.GetPointIds().SetId(3,3)
+
+    quads = vtk.vtkCellArray()
+    quads.InsertNextCell(quad)
+
+    polydata_1 = vtk.vtkPolyData()
+    polydata_1.SetPoints(points_1st_quad)
+    polydata_1.SetPolys(quads)
+
+    modelsLogic = slicer.modules.models.logic()
+    model = modelsLogic.AddModel(polydata)
+    model.GetDisplayNode().SetColor(1,0,0)
 
     logging.info('Processing completed')
-
     return True
 
 
