@@ -4,6 +4,7 @@ import vtk, qt, ctk, slicer
 from slicer.ScriptedLoadableModule import *
 import logging
 import srep
+import numpy as np
 
 #
 # parser
@@ -165,11 +166,15 @@ class parserLogic(ScriptedLoadableModuleLogic):
     s.readSrepFromM3D(filename)
     logging.info('Processing started')
     points = vtk.vtkPoints()
+
+
     for c in range(s.fig.numCols):
         for r in range(s.fig.numRows):
             points.InsertNextPoint( s.fig.atoms[r,c].hub.P )
     polydata = vtk.vtkPolyData()
     polydata.SetPoints(points)
+    # numpy is row major
+    temp = np.arange(s.fig.numCols*s.fig.numRows).reshape((s.fig.numRows, s.fig.numCols))
 
     points_1st_quad = vtk.vtkPoints()
     points_1st_quad.InsertNextPoint( s.fig.atoms[0,0].hub.P )
