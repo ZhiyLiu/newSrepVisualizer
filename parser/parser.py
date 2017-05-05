@@ -187,7 +187,7 @@ class parserLogic(ScriptedLoadableModuleLogic):
         crestSpoke_points = vtk.vtkPoints()
         crestSpoke_lines = vtk.vtkCellArray()
 
-        # modelsLogic = slicer.modules.models.logic()
+        modelsLogic = slicer.modules.models.logic()
         nCols = s.fig.numCols
         nRows = s.fig.numRows
 
@@ -198,11 +198,11 @@ class parserLogic(ScriptedLoadableModuleLogic):
                 current_point = current_atom.hub.P
                 # sphere = vtk.vtkSphereSource()
                 # sphere.SetCenter(current_point)
-                # sphere.SetRadius(0.01)
+                # sphere.SetRadius(1)
                 # model = modelsLogic.AddModel(sphere.GetOutput())
                 # model.GetDisplayNode().SetColor(1,1,0)
                 current_id = medial_points.InsertNextPoint(current_point)
-
+                slicer.modules.markups.logic().AddFiducial(current_point[0], current_point[1], current_point[2])
                 if r < nRows - 1 and c < nCols - 1:
                     quad = vtk.vtkQuad()
                     quad.GetPointIds().SetId(0, current_id)
@@ -310,22 +310,20 @@ class parserLogic(ScriptedLoadableModuleLogic):
         crestSpoke_model.SetAndObserveDisplayNodeID(crestSpoke_model_display.GetID())
         scene.AddNode(crestSpoke_model)
 
-        boundary_points = vtk.vtkPoints()
-        boundary_polydata = vtk.vtkPolyData()
-        boundary_polydata.SetPoints(boundary_points)
-        boundary_poly = vtk.vtkCellArray()
-        boundary_polydata.SetPolys(boundary_poly)
-
-        for r in range(nRows - 1):
-            for c in range(nCols - 1):
-                current_atom = s.fig.atoms[r,c]
-                current_medial_point = current_atom.hub.P
-                # first add in the up point
-                current_upSpoke = current_atom.topSpoke
-                current_upPoint = current_medial_point + current_upSpoke.r * current_upSpoke.U
-                current_boundary_point_id = boundary_points.InsertNextPoints(current_upPoint)
-                #
-
+        # boundary_points = vtk.vtkPoints()
+        # boundary_polydata = vtk.vtkPolyData()
+        # boundary_polydata.SetPoints(boundary_points)
+        # boundary_poly = vtk.vtkCellArray()
+        # boundary_polydata.SetPolys(boundary_poly)
+        #
+        # for r in range(nRows - 1):
+        #     for c in range(nCols - 1):
+        #         current_atom = s.fig.atoms[r,c]
+        #         current_medial_point = current_atom.hub.P
+        #         # first add in the up point
+        #         current_upSpoke = current_atom.topSpoke
+        #         current_upPoint = current_medial_point + current_upSpoke.r * current_upSpoke.U
+        #         current_boundary_point_id = boundary_points.InsertNextPoints(current_upPoint)
 
         # modelsLogic = slicer.modules.models.logic()
         # model = modelsLogic.AddModel(polyData)
