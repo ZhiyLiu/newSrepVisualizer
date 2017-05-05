@@ -76,16 +76,6 @@ class figure:
 class srep:
     def __init__(self):
         self.fig = None
-        self.medialMesh = None
-
-    def getMedialMesh(self):
-        # \TODO: more efficient way of iterating over the hub positions
-        points = vtk.vtkPoints()
-        for c in range(self.fig.numcols):
-            for r in range(self.fig.numRows):
-                points.InsertNextPoint( self.fig.atoms[r,c].hub.P )
-
-        return None
 
     def getSectionDict(self, lines, start, stop):
 	section = [line.strip(';') for line in lines[start:stop]]

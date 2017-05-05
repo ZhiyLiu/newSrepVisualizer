@@ -74,7 +74,6 @@ class parserWidget(ScriptedLoadableModuleWidget):
     #
     self.applyButton = qt.QPushButton("Select M3D File")
     self.applyButton.toolTip = "Run the algorithm."
-    #self.applyButton.enabled = True
     parametersFormLayout.addRow(self.applyButton)
 
     # connections
@@ -85,9 +84,6 @@ class parserWidget(ScriptedLoadableModuleWidget):
 
   def cleanup(self):
     pass
-
-  def onSelect(self):
-    self.applyButton.enabled = True
 
   def onApplyButton(self):
     logic = parserLogic()
@@ -166,34 +162,34 @@ class parserLogic(ScriptedLoadableModuleLogic):
     s.readSrepFromM3D(filename)
     logging.info('Processing started')
     points = vtk.vtkPoints()
+#
+#
+    modelsLogic = slicer.modules.models.logic()
+    quads = vtk.vtkCellArray()
 
+    nCols = s.fig.numCols
+    nRows = s.fig.numRows
+    for r in range(nRows):
+        for c in range(nCols):
+            current_point = s.fig.atoms[r,c].hub.P
+            sphere = vtk.vtkSphereSource()
+            sphere.SetCenter(current_point)
+            sphere.SetRadius(0.01)
+            sphere.Update()
+            model = modelsLogic.AddModel(sphere.GetOutput())
+            model.GetDisplayNode().SetColor(1,1,0)
+            current_id = points.InsertNextPoint( current_point )
+            if r < nRows - 1 and c < nCols -1:
+                quad = vtk.vtkQuad()
+                quad.GetPointIds().SetId(0, current_id)
+                quad.GetPointIds().SetId(1, current_id + nCols)
+                quad.GetPointIds().SetId(2, current_id + nCols + 1)
+                quad.GetPointIds().SetId(3, current_id + 1)
+                quads.InsertNextCell(quad)
 
-    for c in range(s.fig.numCols):
-        for r in range(s.fig.numRows):
-            points.InsertNextPoint( s.fig.atoms[r,c].hub.P )
     polydata = vtk.vtkPolyData()
     polydata.SetPoints(points)
-    # numpy is row major
-    temp = np.arange(s.fig.numCols*s.fig.numRows).reshape((s.fig.numRows, s.fig.numCols))
-
-    points_1st_quad = vtk.vtkPoints()
-    points_1st_quad.InsertNextPoint( s.fig.atoms[0,0].hub.P )
-    points_1st_quad.InsertNextPoint( s.fig.atoms[1,0].hub.P )
-    points_1st_quad.InsertNextPoint( s.fig.atoms[1,1].hub.P )
-    points_1st_quad.InsertNextPoint( s.fig.atoms[0,1].hub.P )
-
-    quad = vtk.vtkQuad()
-    quad.GetPointIds().SetId(0,0)
-    quad.GetPointIds().SetId(1,1)
-    quad.GetPointIds().SetId(2,2)
-    quad.GetPointIds().SetId(3,3)
-
-    quads = vtk.vtkCellArray()
-    quads.InsertNextCell(quad)
-
-    polydata_1 = vtk.vtkPolyData()
-    polydata_1.SetPoints(points_1st_quad)
-    polydata_1.SetPolys(quads)
+    polydata.SetPolys(quads)
 
     modelsLogic = slicer.modules.models.logic()
     model = modelsLogic.AddModel(polydata)
@@ -201,7 +197,7 @@ class parserLogic(ScriptedLoadableModuleLogic):
 
     logging.info('Processing completed')
     return True
-
+#
 
 class parserTest(ScriptedLoadableModuleTest):
   """
