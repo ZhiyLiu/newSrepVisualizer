@@ -78,18 +78,24 @@ class parserWidget(ScriptedLoadableModuleWidget):
         self.applyButton.toolTip = "Run the algorithm."
         parametersFormLayout.addRow(self.applyButton)
 
+        self.boundarySurfaceRendering = qt.QCheckBox()
+        self.boundarySurfaceRendering.checked = 0
+        self.boundarySurfaceRendering.setToolTip("If checked, set the visibility of the boundary mesh")
+        parametersFormLayout.addRow("Show Boundary Mesh", self.boundarySurfaceRendering)
+
         # connections
         self.applyButton.connect('clicked(bool)', self.onApplyButton)
-
         # Add vertical spacer
         self.layout.addStretch(1)
+
 
     def cleanup(self):
         pass
 
     def onApplyButton(self):
         logic = parserLogic()
-        logic.run()
+        flag = self.boundarySurfaceRendering.checked
+        logic.run(flag)
 
 
 #
@@ -157,7 +163,8 @@ class parserLogic(ScriptedLoadableModuleLogic):
         annotationLogic = slicer.modules.annotations.logic()
         annotationLogic.CreateSnapShot(name, description, type, 1, imageData)
 
-    def run(self):
+    def run(self,renderFlag):
+
         """
         Run the actual algorithm
         """
@@ -187,14 +194,20 @@ class parserLogic(ScriptedLoadableModuleLogic):
         crestSpoke_points = vtk.vtkPoints()
         crestSpoke_lines = vtk.vtkCellArray()
 
-        modelsLogic = slicer.modules.models.logic()
+        # modelsLogic = slicer.modules.models.logic()
         nCols = s.fig.numCols
         nRows = s.fig.numRows
-
+        fidDisplayNode = slicer.vtkMRMLMarkupsDisplayNode()
+        scene.AddNode(fidDisplayNode)
+        fidNode = slicer.vtkMRMLMarkupsFiducialNode()
+        fidDisplayNode.SetGlyphScale(0.01)
+        fidDisplayNode.SetSelectedColor(1.0, 1.0, 0.0)
+        fidDisplayNode.SetTextScale(0.0)
+        scene.AddNode(fidNode)
+        fidNode.SetAndObserveDisplayNodeID(fidDisplayNode.GetID())
         for r in range(nRows):
             for c in range(nCols):
                 current_atom = s.fig.atoms[r, c]
-
                 current_point = current_atom.hub.P
                 # sphere = vtk.vtkSphereSource()
                 # sphere.SetCenter(current_point)
@@ -202,7 +215,9 @@ class parserLogic(ScriptedLoadableModuleLogic):
                 # model = modelsLogic.AddModel(sphere.GetOutput())
                 # model.GetDisplayNode().SetColor(1,1,0)
                 current_id = medial_points.InsertNextPoint(current_point)
-                slicer.modules.markups.logic().AddFiducial(current_point[0], current_point[1], current_point[2])
+                # slicer.modules.markups.logic().AddFiducial(current_point[0], current_point[1], current_point[2])
+                fidNode.AddFiducial(current_point[0], current_point[1], current_point[2])
+
                 if r < nRows - 1 and c < nCols - 1:
                     quad = vtk.vtkQuad()
                     quad.GetPointIds().SetId(0, current_id)
@@ -240,17 +255,18 @@ class parserLogic(ScriptedLoadableModuleLogic):
                     current_crest_line.GetPointIds().SetId(1, id1)
                     crestSpoke_lines.InsertNextCell(current_crest_line)
 
-        # # model node for medial mesh
+        # model node for medial mesh
         medial_model = slicer.vtkMRMLModelNode()
         medial_model.SetScene(scene)
         medial_model.SetName("Medial Mesh")
         medial_model.SetAndObservePolyData(medial_polyData)
         # model display node for the medial mesh
         medial_model_display = slicer.vtkMRMLModelDisplayNode()
-        medial_model_display.SetColor(0, 1, 0)
+        medial_model_display.SetColor(0, 0.5, 0)
         medial_model_display.SetScene(scene)
         medial_model_display.SetLineWidth(3.0)
         medial_model_display.SetRepresentation(1)
+        medial_model_display.SetBackfaceCulling(0)
         scene.AddNode(medial_model_display)
         medial_model.SetAndObserveDisplayNodeID(medial_model_display.GetID())
         scene.AddNode(medial_model)
@@ -310,21 +326,21 @@ class parserLogic(ScriptedLoadableModuleLogic):
         crestSpoke_model.SetAndObserveDisplayNodeID(crestSpoke_model_display.GetID())
         scene.AddNode(crestSpoke_model)
 
-        # boundary_points = vtk.vtkPoints()
-        # boundary_polydata = vtk.vtkPolyData()
-        # boundary_polydata.SetPoints(boundary_points)
-        # boundary_poly = vtk.vtkCellArray()
-        # boundary_polydata.SetPolys(boundary_poly)
+        # Creating a boundary mesh polydata
+        boundary_points = vtk.vtkPoints()
+        boundary_polydata = vtk.vtkPolyData()
+        boundary_polydata.SetPoints(boundary_points)
+        boundary_poly = vtk.vtkCellArray()
+        boundary_polydata.SetPolys(boundary_poly)
         #
-        # for r in range(nRows - 1):
-        #     for c in range(nCols - 1):
-        #         current_atom = s.fig.atoms[r,c]
-        #         current_medial_point = current_atom.hub.P
-        #         # first add in the up point
-        #         current_upSpoke = current_atom.topSpoke
-        #         current_upPoint = current_medial_point + current_upSpoke.r * current_upSpoke.U
-        #         current_boundary_point_id = boundary_points.InsertNextPoints(current_upPoint)
-
+        for r in range(nRows):
+            for c in range(nCols):
+                current_atom = s.fig.atoms[r,c]
+                # current_medial_point = current_atom.hub.P
+                # # first add in the up point
+                # current_upSpoke = current_atom.topSpoke
+                # current_upPoint = current_medial_point + current_upSpoke.r * current_upSpoke.U
+                # current_boundary_point_id = boundary_points.InsertNextPoints(current_upPoint)
         # modelsLogic = slicer.modules.models.logic()
         # model = modelsLogic.AddModel(polyData)
         # model.GetDisplayNode().SetColor(0,0.5,0)
@@ -370,21 +386,6 @@ class parserTest(ScriptedLoadableModuleTest):
         #
         # first, get some data
         #
-        import urllib
-        downloads = (
-            ('http://slicer.kitware.com/midas3/download?items=5767', 'FA.nrrd', slicer.util.loadVolume),
-        )
-
-        for url, name, loader in downloads:
-            filePath = slicer.app.temporaryPath + '/' + name
-            if not os.path.exists(filePath) or os.stat(filePath).st_size == 0:
-                logging.info('Requesting download %s from %s...\n' % (name, url))
-                urllib.urlretrieve(url, filePath)
-            if loader:
-                logging.info('Loading %s...' % (name,))
-                loader(filePath)
-        self.delayDisplay('Finished with download and loading')
-
         volumeNode = slicer.util.getNode(pattern="FA")
         logic = parserLogic()
         self.assertIsNotNone(logic.hasImageData(volumeNode))
