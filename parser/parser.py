@@ -161,39 +161,154 @@ class parserLogic(ScriptedLoadableModuleLogic):
     s = srep.srep()
     s.readSrepFromM3D(filename)
     logging.info('Processing started')
-    points = vtk.vtkPoints()
-#
-#
-    modelsLogic = slicer.modules.models.logic()
-    quads = vtk.vtkCellArray()
 
+    scene = slicer.mrmlScene
+
+    # medial surface
+    medial_points = vtk.vtkPoints()
+    medial_polyData = vtk.vtkPolyData()
+    medial_polyData.SetPoints(medial_points)
+    medial_poly = vtk.vtkCellArray()
+    medial_polyData.SetPolys(medial_poly)
+
+    # up spoke
+    upSpoke_points = vtk.vtkPoints()
+    upSpoke_lines = vtk.vtkCellArray()
+
+    # down spoke
+    downSpoke_points = vtk.vtkPoints()
+    downSpoke_lines = vtk.vtkCellArray()
+
+    # crest spoke
+    crestSpoke_points = vtk.vtkPoints()
+    crestSpoke_lines = vtk.vtkCellArray()
+
+    # modelsLogic = slicer.modules.models.logic()
     nCols = s.fig.numCols
     nRows = s.fig.numRows
+
     for r in range(nRows):
         for c in range(nCols):
-            current_point = s.fig.atoms[r,c].hub.P
-            sphere = vtk.vtkSphereSource()
-            sphere.SetCenter(current_point)
-            sphere.SetRadius(0.01)
-            sphere.Update()
-            model = modelsLogic.AddModel(sphere.GetOutput())
-            model.GetDisplayNode().SetColor(1,1,0)
-            current_id = points.InsertNextPoint( current_point )
+            current_atom = s.fig.atoms[r,c]
+
+            current_point = current_atom.hub.P
+            # sphere = vtk.vtkSphereSource()
+            # sphere.SetCenter(current_point)
+            # sphere.SetRadius(0.01)
+            # model = modelsLogic.AddModel(sphere.GetOutput())
+            # model.GetDisplayNode().SetColor(1,1,0)
+            current_id = medial_points.InsertNextPoint( current_point )
+
             if r < nRows - 1 and c < nCols -1:
                 quad = vtk.vtkQuad()
                 quad.GetPointIds().SetId(0, current_id)
                 quad.GetPointIds().SetId(1, current_id + nCols)
                 quad.GetPointIds().SetId(2, current_id + nCols + 1)
                 quad.GetPointIds().SetId(3, current_id + 1)
-                quads.InsertNextCell(quad)
+                medial_poly.InsertNextCell(quad)
 
-    polydata = vtk.vtkPolyData()
-    polydata.SetPoints(points)
-    polydata.SetPolys(quads)
+            # \TODO: refactor repeated code as a function
+            current_upSpoke = current_atom.topSpoke
+            current_upPoint =  current_point + current_upSpoke.r * current_upSpoke.U
+            id0 = upSpoke_points.InsertNextPoint(current_point)
+            id1 = upSpoke_points.InsertNextPoint(current_upPoint)
+            current_up_line = vtk.vtkLine()
+            current_up_line.GetPointIds().SetId(0, id0)
+            current_up_line.GetPointIds().SetId(1, id1)
+            upSpoke_lines.InsertNextCell(current_up_line)
 
-    modelsLogic = slicer.modules.models.logic()
-    model = modelsLogic.AddModel(polydata)
-    model.GetDisplayNode().SetColor(1,0,0)
+            current_downSpoke = current_atom.botSpoke
+            current_downPoint = current_point + current_downSpoke.r * current_downSpoke.U
+            id0 = downSpoke_points.InsertNextPoint(current_point)
+            id1 = downSpoke_points.InsertNextPoint(current_downPoint)
+            current_down_line = vtk.vtkLine()
+            current_down_line.GetPointIds().SetId(0, id0)
+            current_down_line.GetPointIds().SetId(1, id1)
+            downSpoke_lines.InsertNextCell(current_down_line)
+
+            if current_atom.isCrest():
+              current_crestSpoke = current_atom.crestSpoke
+              current_crestPoint = current_point + current_crestSpoke.r * current_crestSpoke.U
+              id0 = crestSpoke_points.InsertNextPoint(current_point)
+              id1 = crestSpoke_points.InsertNextPoint(current_crestPoint)
+              current_crest_line = vtk.vtkLine()
+              current_crest_line.GetPointIds().SetId(0, id0)
+              current_crest_line.GetPointIds().SetId(1, id1)
+              crestSpoke_lines.InsertNextCell(current_crest_line)
+
+    # # model node for medial mesh
+    medial_model = slicer.vtkMRMLModelNode()
+    medial_model.SetScene(scene)
+    medial_model.SetName("Medial Mesh")
+    medial_model.SetAndObservePolyData(medial_polyData)
+    # model display node for the medial mesh
+    medial_model_display = slicer.vtkMRMLModelDisplayNode()
+    medial_model_display.SetColor(0,1,0)
+    medial_model_display.SetScene(scene)
+    medial_model_display.SetLineWidth(3.0)
+    medial_model_display.SetRepresentation(1)
+    scene.AddNode(medial_model_display)
+    medial_model.SetAndObserveDisplayNodeID(medial_model_display.GetID())
+    scene.AddNode(medial_model)
+
+    # model node for up spoke
+    upSpoke_polyData = vtk.vtkPolyData()
+    upSpoke_polyData.SetPoints(upSpoke_points)
+    upSpoke_polyData.SetLines(upSpoke_lines)
+
+    upSpoke_model = slicer.vtkMRMLModelNode()
+    upSpoke_model.SetScene(scene)
+    upSpoke_model.SetName("Top Spoke")
+    upSpoke_model.SetAndObservePolyData(upSpoke_polyData)
+    # model display node for the top spoke
+    # cyan for the top spoke
+    upSpoke_model_display = slicer.vtkMRMLModelDisplayNode()
+    upSpoke_model_display.SetColor(0,1,1)
+    upSpoke_model_display.SetScene(scene)
+    upSpoke_model_display.SetLineWidth(3.0)
+    scene.AddNode(upSpoke_model_display)
+    upSpoke_model.SetAndObserveDisplayNodeID(upSpoke_model_display.GetID())
+    scene.AddNode(upSpoke_model)
+
+    # down spoke
+    downSpoke_polyData = vtk.vtkPolyData()
+    downSpoke_polyData.SetPoints(downSpoke_points)
+    downSpoke_polyData.SetLines(downSpoke_lines)
+
+    downSpoke_model = slicer.vtkMRMLModelNode()
+    downSpoke_model.SetScene(scene)
+    downSpoke_model.SetName("Bottom Spoke")
+    downSpoke_model.SetAndObservePolyData(downSpoke_polyData)
+    # model display node for the down spoke
+    downSpoke_model_display = slicer.vtkMRMLModelDisplayNode()
+    downSpoke_model_display.SetColor(1,0,1)
+    downSpoke_model_display.SetScene(scene)
+    downSpoke_model_display.SetLineWidth(3.0)
+    scene.AddNode(downSpoke_model_display)
+    downSpoke_model.SetAndObserveDisplayNodeID(downSpoke_model_display.GetID())
+    scene.AddNode(downSpoke_model)
+
+    # crest spoke
+    crestSpoke_polyData = vtk.vtkPolyData()
+    crestSpoke_polyData.SetPoints(crestSpoke_points)
+    crestSpoke_polyData.SetLines(crestSpoke_lines)
+
+    crestSpoke_model = slicer.vtkMRMLModelNode()
+    crestSpoke_model.SetScene(scene)
+    crestSpoke_model.SetName("Crest Spoke")
+    crestSpoke_model.SetAndObservePolyData(crestSpoke_polyData)
+    # model display node for the down spoke
+    crestSpoke_model_display = slicer.vtkMRMLModelDisplayNode()
+    crestSpoke_model_display.SetColor(1, 0, 0)
+    crestSpoke_model_display.SetScene(scene)
+    crestSpoke_model_display.SetLineWidth(3.0)
+    scene.AddNode(crestSpoke_model_display)
+    crestSpoke_model.SetAndObserveDisplayNodeID(crestSpoke_model_display.GetID())
+    scene.AddNode(crestSpoke_model)
+
+    # modelsLogic = slicer.modules.models.logic()
+    # model = modelsLogic.AddModel(polyData)
+    # model.GetDisplayNode().SetColor(0,0.5,0)
 
     logging.info('Processing completed')
     return True
