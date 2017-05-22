@@ -163,6 +163,13 @@ class parserLogic(ScriptedLoadableModuleLogic):
         annotationLogic = slicer.modules.annotations.logic()
         annotationLogic.CreateSnapShot(name, description, type, 1, imageData)
 
+
+    def computeIndex(self, i, j, numRows, numCols):
+        atomIndex = numCols * i  + j
+        numEndAtoms = 0
+        numStdAtoms = 0
+
+
     def run(self,renderFlag):
 
         """
@@ -172,6 +179,7 @@ class parserLogic(ScriptedLoadableModuleLogic):
         s = srep.srep()
         s.readSrepFromM3D(filename)
         logging.info('Processing started')
+
 
         scene = slicer.mrmlScene
 
@@ -194,9 +202,13 @@ class parserLogic(ScriptedLoadableModuleLogic):
         crestSpoke_points = vtk.vtkPoints()
         crestSpoke_lines = vtk.vtkCellArray()
 
-        # modelsLogic = slicer.modules.models.logic()
+        # surface points
+        boundary_surface_points = vtk.vtkPoints()
+        boundary_surface_poly = vtk.vtkCellArray()
+
         nCols = s.fig.numCols
         nRows = s.fig.numRows
+
         fidDisplayNode = slicer.vtkMRMLMarkupsDisplayNode()
         scene.AddNode(fidDisplayNode)
         fidNode = slicer.vtkMRMLMarkupsFiducialNode()
@@ -205,17 +217,12 @@ class parserLogic(ScriptedLoadableModuleLogic):
         fidDisplayNode.SetTextScale(0.0)
         scene.AddNode(fidNode)
         fidNode.SetAndObserveDisplayNodeID(fidDisplayNode.GetID())
+
         for r in range(nRows):
             for c in range(nCols):
                 current_atom = s.fig.atoms[r, c]
                 current_point = current_atom.hub.P
-                # sphere = vtk.vtkSphereSource()
-                # sphere.SetCenter(current_point)
-                # sphere.SetRadius(1)
-                # model = modelsLogic.AddModel(sphere.GetOutput())
-                # model.GetDisplayNode().SetColor(1,1,0)
                 current_id = medial_points.InsertNextPoint(current_point)
-                # slicer.modules.markups.logic().AddFiducial(current_point[0], current_point[1], current_point[2])
                 fidNode.AddFiducial(current_point[0], current_point[1], current_point[2])
 
                 if r < nRows - 1 and c < nCols - 1:
@@ -255,6 +262,7 @@ class parserLogic(ScriptedLoadableModuleLogic):
                     current_crest_line.GetPointIds().SetId(1, id1)
                     crestSpoke_lines.InsertNextCell(current_crest_line)
 
+
         # model node for medial mesh
         medial_model = slicer.vtkMRMLModelNode()
         medial_model.SetScene(scene)
@@ -275,7 +283,6 @@ class parserLogic(ScriptedLoadableModuleLogic):
         upSpoke_polyData = vtk.vtkPolyData()
         upSpoke_polyData.SetPoints(upSpoke_points)
         upSpoke_polyData.SetLines(upSpoke_lines)
-
         upSpoke_model = slicer.vtkMRMLModelNode()
         upSpoke_model.SetScene(scene)
         upSpoke_model.SetName("Top Spoke")
@@ -325,31 +332,11 @@ class parserLogic(ScriptedLoadableModuleLogic):
         scene.AddNode(crestSpoke_model_display)
         crestSpoke_model.SetAndObserveDisplayNodeID(crestSpoke_model_display.GetID())
         scene.AddNode(crestSpoke_model)
-
-        # Creating a boundary mesh polydata
-        boundary_points = vtk.vtkPoints()
-        boundary_polydata = vtk.vtkPolyData()
-        boundary_polydata.SetPoints(boundary_points)
-        boundary_poly = vtk.vtkCellArray()
-        boundary_polydata.SetPolys(boundary_poly)
         #
-        for r in range(nRows):
-            for c in range(nCols):
-                current_atom = s.fig.atoms[r,c]
-                # current_medial_point = current_atom.hub.P
-                # # first add in the up point
-                # current_upSpoke = current_atom.topSpoke
-                # current_upPoint = current_medial_point + current_upSpoke.r * current_upSpoke.U
-                # current_boundary_point_id = boundary_points.InsertNextPoints(current_upPoint)
-        # modelsLogic = slicer.modules.models.logic()
-        # model = modelsLogic.AddModel(polyData)
-        # model.GetDisplayNode().SetColor(0,0.5,0)
+
 
         logging.info('Processing completed')
         return True
-
-
-#
 
 
 class parserTest(ScriptedLoadableModuleTest):
