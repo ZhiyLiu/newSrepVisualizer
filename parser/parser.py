@@ -217,9 +217,13 @@ class parserLogic(ScriptedLoadableModuleLogic):
         fidDisplayNode.SetTextScale(0.0)
         scene.AddNode(fidNode)
         fidNode.SetAndObserveDisplayNodeID(fidDisplayNode.GetID())
+        # \TODO come up with better name later
+
+        boundary_point_ids = []
 
         for r in range(nRows):
             for c in range(nCols):
+                current_boundary_point_id = []
                 current_atom = s.fig.atoms[r, c]
                 current_point = current_atom.hub.P
                 current_id = medial_points.InsertNextPoint(current_point)
@@ -236,6 +240,9 @@ class parserLogic(ScriptedLoadableModuleLogic):
                 # \TODO: refactor repeated code as a function
                 current_upSpoke = current_atom.topSpoke
                 current_upPoint = current_point + current_upSpoke.r * current_upSpoke.U
+                bp_id = boundary_surface_points.InsertNextPoint(current_upPoint)
+                current_boundary_point_id.append(bp_id)
+
                 id0 = upSpoke_points.InsertNextPoint(current_point)
                 id1 = upSpoke_points.InsertNextPoint(current_upPoint)
                 current_up_line = vtk.vtkLine()
@@ -245,6 +252,9 @@ class parserLogic(ScriptedLoadableModuleLogic):
 
                 current_downSpoke = current_atom.botSpoke
                 current_downPoint = current_point + current_downSpoke.r * current_downSpoke.U
+                bp_id = boundary_surface_points.InsertNextPoint(current_downPoint)
+                current_boundary_point_id.append(bp_id)
+
                 id0 = downSpoke_points.InsertNextPoint(current_point)
                 id1 = downSpoke_points.InsertNextPoint(current_downPoint)
                 current_down_line = vtk.vtkLine()
@@ -255,12 +265,49 @@ class parserLogic(ScriptedLoadableModuleLogic):
                 if current_atom.isCrest():
                     current_crestSpoke = current_atom.crestSpoke
                     current_crestPoint = current_point + current_crestSpoke.r * current_crestSpoke.U
+                    bp_id = boundary_surface_points.InsertNextPoint(current_crestPoint)
+                    current_boundary_point_id.append(bp_id)
+
                     id0 = crestSpoke_points.InsertNextPoint(current_point)
                     id1 = crestSpoke_points.InsertNextPoint(current_crestPoint)
                     current_crest_line = vtk.vtkLine()
                     current_crest_line.GetPointIds().SetId(0, id0)
                     current_crest_line.GetPointIds().SetId(1, id1)
                     crestSpoke_lines.InsertNextCell(current_crest_line)
+
+                boundary_point_ids.append(current_boundary_point_id)
+
+        for i in range(nRows):
+            for j in range(nCols):
+                if (i == 0) or (i == nRows-1) or (j == 0) or (j == nCols-1):
+                    atomType = 1
+                else:
+                    atomType = 0
+                atomIndex = nCols * i + j
+                if atomType == 1:
+                    if (i == 0 and j < nCols - 1) or (i == nRows-1 and j < nCols -1):
+                        # horizontal
+                        crest_quad = vtk.vtkQuad()
+
+
+                if i < nRows - 1 and j < nCols - 1:
+                    # up quad first
+                    up_quad = vtk.vtkQuad()
+                    up_quad.GetPointIDs().SetId(0, current_boundary_point_id[atomIndex][0])
+                    up_quad.GetPointIDs().SetId(1, current_boundary_point_id[atomIndex + nCols][0])
+                    up_quad.GetPointIDs().SetId(2, current_boundary_point_id[atomIndex + nCols + 1][0])
+                    up_quad.GetPointIDs().SetId(3, current_boundary_point_id[atomIndex + 1][0])
+                    boundary_surface_poly.InsertNextCell(up_quad)
+
+                    down_quad = vtk.vtkQuad()
+                    down_quad.GetPointIDs().SetId(0, current_boundary_point_id[atomIndex][1])
+                    down_quad.GetPointIDs().SetId(1, current_boundary_point_id[atomIndex + nCols][1])
+                    down_quad.GetPointIDs().SetId(2, current_boundary_point_id[atomIndex + nCols + 1][1])
+                    down_quad.GetPointIDs().SetId(3, current_boundary_point_id[atomIndex + 1][1])
+                    boundary_surface_poly.InsertNextCell(down_quad)
+
+
+
 
 
         # model node for medial mesh
