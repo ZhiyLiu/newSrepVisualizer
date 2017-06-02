@@ -287,26 +287,51 @@ class parserLogic(ScriptedLoadableModuleLogic):
                 if atomType == 1:
                     if (i == 0 and j < nCols - 1) or (i == nRows-1 and j < nCols -1):
                         # horizontal
-                        crest_quad = vtk.vtkQuad()
+                        crest_quad_up = vtk.vtkQuad()
+                        crest_quad_up.GetPointIds().SetId(0, boundary_point_ids[atomIndex][2])
+                        crest_quad_up.GetPointIds().SetId(1, boundary_point_ids[atomIndex + 1][2])
+                        crest_quad_up.GetPointIds().SetId(2, boundary_point_ids[atomIndex + 1][0])
+                        crest_quad_up.GetPointIds().SetId(3, boundary_point_ids[atomIndex][0])
+                        boundary_surface_poly.InsertNextCell(crest_quad_up)
 
+                        crest_quad_down = vtk.vtkQuad()
+                        crest_quad_down.GetPointIds().SetId(0, boundary_point_ids[atomIndex][2])
+                        crest_quad_down.GetPointIds().SetId(1, boundary_point_ids[atomIndex + 1][2])
+                        crest_quad_down.GetPointIds().SetId(2, boundary_point_ids[atomIndex + 1][1])
+                        crest_quad_down.GetPointIds().SetId(3, boundary_point_ids[atomIndex][1])
+                        boundary_surface_poly.InsertNextCell(crest_quad_down)
+
+                    if (j == 0 and i < nRows - 1) or (j == nCols-1 and i < nRows - 1):
+                        # vertical
+                        crest_quad_up = vtk.vtkQuad()
+                        crest_quad_up.GetPointIds().SetId(0, boundary_point_ids[atomIndex][2])
+                        crest_quad_up.GetPointIds().SetId(1, boundary_point_ids[atomIndex + nCols][2])
+                        crest_quad_up.GetPointIds().SetId(2, boundary_point_ids[atomIndex + nCols][0])
+                        crest_quad_up.GetPointIds().SetId(3, boundary_point_ids[atomIndex][0])
+                        boundary_surface_poly.InsertNextCell(crest_quad_up)
+
+                        crest_quad_down = vtk.vtkQuad()
+                        crest_quad_down.GetPointIds().SetId(0, boundary_point_ids[atomIndex][2])
+                        crest_quad_down.GetPointIds().SetId(1, boundary_point_ids[atomIndex + nCols][2])
+                        crest_quad_down.GetPointIds().SetId(2, boundary_point_ids[atomIndex + nCols][1])
+                        crest_quad_down.GetPointIds().SetId(3, boundary_point_ids[atomIndex][1])
+                        boundary_surface_poly.InsertNextCell(crest_quad_down)
 
                 if i < nRows - 1 and j < nCols - 1:
                     # up quad first
                     up_quad = vtk.vtkQuad()
-                    up_quad.GetPointIDs().SetId(0, current_boundary_point_id[atomIndex][0])
-                    up_quad.GetPointIDs().SetId(1, current_boundary_point_id[atomIndex + nCols][0])
-                    up_quad.GetPointIDs().SetId(2, current_boundary_point_id[atomIndex + nCols + 1][0])
-                    up_quad.GetPointIDs().SetId(3, current_boundary_point_id[atomIndex + 1][0])
+                    up_quad.GetPointIds().SetId(0, boundary_point_ids[atomIndex][0])
+                    up_quad.GetPointIds().SetId(1, boundary_point_ids[atomIndex + nCols][0])
+                    up_quad.GetPointIds().SetId(2, boundary_point_ids[atomIndex + nCols + 1][0])
+                    up_quad.GetPointIds().SetId(3, boundary_point_ids[atomIndex + 1][0])
                     boundary_surface_poly.InsertNextCell(up_quad)
 
                     down_quad = vtk.vtkQuad()
-                    down_quad.GetPointIDs().SetId(0, current_boundary_point_id[atomIndex][1])
-                    down_quad.GetPointIDs().SetId(1, current_boundary_point_id[atomIndex + nCols][1])
-                    down_quad.GetPointIDs().SetId(2, current_boundary_point_id[atomIndex + nCols + 1][1])
-                    down_quad.GetPointIDs().SetId(3, current_boundary_point_id[atomIndex + 1][1])
+                    down_quad.GetPointIds().SetId(0, boundary_point_ids[atomIndex][1])
+                    down_quad.GetPointIds().SetId(1, boundary_point_ids[atomIndex + nCols][1])
+                    down_quad.GetPointIds().SetId(2, boundary_point_ids[atomIndex + nCols + 1][1])
+                    down_quad.GetPointIds().SetId(3, boundary_point_ids[atomIndex + 1][1])
                     boundary_surface_poly.InsertNextCell(down_quad)
-
-
 
 
 
@@ -326,6 +351,23 @@ class parserLogic(ScriptedLoadableModuleLogic):
         medial_model.SetAndObserveDisplayNodeID(medial_model_display.GetID())
         scene.AddNode(medial_model)
 
+        # model node for boundary mesh
+        boundary_surface_polyData = vtk.vtkPolyData()
+        boundary_surface_polyData.SetPoints(boundary_surface_points)
+        boundary_surface_polyData.SetPolys(boundary_surface_poly)
+        boundary_surface_model = slicer.vtkMRMLModelNode()
+        boundary_surface_model.SetScene(scene)
+        boundary_surface_model.SetName("Boundary Model")
+        boundary_surface_model.SetAndObservePolyData(boundary_surface_polyData)
+        # boundary display
+        boundary_surface_model_display = slicer.vtkMRMLModelDisplayNode()
+        boundary_surface_model_display.SetColor(0,0,0.5)
+        boundary_surface_model_display.SetBackfaceCulling(0)
+        boundary_surface_model_display.SetScene(scene)
+        scene.AddNode(boundary_surface_model_display)
+        boundary_surface_model.SetAndObserveDisplayNodeID(boundary_surface_model_display.GetID())
+        scene.AddNode(boundary_surface_model)
+
         # model node for up spoke
         upSpoke_polyData = vtk.vtkPolyData()
         upSpoke_polyData.SetPoints(upSpoke_points)
@@ -340,6 +382,7 @@ class parserLogic(ScriptedLoadableModuleLogic):
         upSpoke_model_display.SetColor(0, 1, 1)
         upSpoke_model_display.SetScene(scene)
         upSpoke_model_display.SetLineWidth(3.0)
+        upSpoke_model_display.SetBackfaceCulling(0)
         scene.AddNode(upSpoke_model_display)
         upSpoke_model.SetAndObserveDisplayNodeID(upSpoke_model_display.GetID())
         scene.AddNode(upSpoke_model)
@@ -358,6 +401,7 @@ class parserLogic(ScriptedLoadableModuleLogic):
         downSpoke_model_display.SetColor(1, 0, 1)
         downSpoke_model_display.SetScene(scene)
         downSpoke_model_display.SetLineWidth(3.0)
+        downSpoke_model_display.SetBackfaceCulling(0)
         scene.AddNode(downSpoke_model_display)
         downSpoke_model.SetAndObserveDisplayNodeID(downSpoke_model_display.GetID())
         scene.AddNode(downSpoke_model)
@@ -376,11 +420,11 @@ class parserLogic(ScriptedLoadableModuleLogic):
         crestSpoke_model_display.SetColor(1, 0, 0)
         crestSpoke_model_display.SetScene(scene)
         crestSpoke_model_display.SetLineWidth(3.0)
+        crestSpoke_model_display.SetBackfaceCulling(0)
         scene.AddNode(crestSpoke_model_display)
         crestSpoke_model.SetAndObserveDisplayNodeID(crestSpoke_model_display.GetID())
         scene.AddNode(crestSpoke_model)
         #
-
 
         logging.info('Processing completed')
         return True
