@@ -3,7 +3,7 @@ import unittest
 import vtk, qt, ctk, slicer
 from slicer.ScriptedLoadableModule import *
 import logging
-import srep
+from Lib import *
 import numpy as np
 
 
