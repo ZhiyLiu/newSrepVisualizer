@@ -179,6 +179,7 @@ class visualizerLogic(ScriptedLoadableModuleLogic):
         """
         filename = qt.QFileDialog.getOpenFileName()
         if filename == '':
+            logging.error('Input file name is empty')
             return False
         
         logging.info('Processing started')
