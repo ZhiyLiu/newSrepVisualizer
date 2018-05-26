@@ -1,15 +1,15 @@
 cmake_minimum_required(VERSION 2.8.9)
 
-project(legacyM3Dparser)
+project(newSrepVisualizer)
 
 #-----------------------------------------------------------------------------
 # Extension meta-information
-set(EXTENSION_HOMEPAGE "http://slicer.org/slicerWiki/index.php/Documentation/Nightly/Extensions/legacyM3Dparser")
+set(EXTENSION_HOMEPAGE "http://slicer.org/slicerWiki/index.php/Documentation/Nightly/Extensions/newSrepVisualizer")
 set(EXTENSION_CATEGORY "Examples")
 set(EXTENSION_CONTRIBUTORS "John Doe (AnyWare Corp.)")
 set(EXTENSION_DESCRIPTION "This is an example of a simple extension")
-set(EXTENSION_ICONURL "http://www.example.com/Slicer/Extensions/legacyM3Dparser.png")
-set(EXTENSION_SCREENSHOTURLS "http://www.example.com/Slicer/Extensions/legacyM3Dparser/Screenshots/1.png")
+set(EXTENSION_ICONURL "http://www.example.com/Slicer/Extensions/newSrepVisualizer.png")
+set(EXTENSION_SCREENSHOTURLS "http://www.example.com/Slicer/Extensions/newSrepVisualizer/Screenshots/1.png")
 set(EXTENSION_DEPENDS "NA") # Specified as a space separated string, a list or 'NA' if any
 
 #-----------------------------------------------------------------------------
@@ -19,7 +19,7 @@ include(${Slicer_USE_FILE})
 
 #-----------------------------------------------------------------------------
 # Extension modules
-add_subdirectory(parser)
+add_subdirectory(visualizer)
 ## NEXT_MODULE
 
 #-----------------------------------------------------------------------------

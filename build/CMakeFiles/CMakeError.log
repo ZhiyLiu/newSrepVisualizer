@@ -1,0 +1,129 @@
+Determining if the Q_WS_WIN exist failed with the following output:
+Change Dir: /playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_cfc87/fast"
+/usr/bin/make -f CMakeFiles/cmTC_cfc87.dir/build.make CMakeFiles/cmTC_cfc87.dir/build
+make[1]: Entering directory '/playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_cfc87.dir/CheckSymbolExists.cxx.o
+/usr/bin/g++   -I/usr/include/qt4   -o CMakeFiles/cmTC_cfc87.dir/CheckSymbolExists.cxx.o -c /playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx
+/playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx: In function ‘int main(int, char**)’:
+/playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:8:19: error: ‘Q_WS_WIN’ was not declared in this scope
+   return ((int*)(&Q_WS_WIN))[argc];
+                   ^~~~~~~~
+/playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:8:19: note: suggested alternative: ‘Q_WS_X11’
+   return ((int*)(&Q_WS_WIN))[argc];
+                   ^~~~~~~~
+                   Q_WS_X11
+CMakeFiles/cmTC_cfc87.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_cfc87.dir/CheckSymbolExists.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_cfc87.dir/CheckSymbolExists.cxx.o] Error 1
+make[1]: Leaving directory '/playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_cfc87/fast' failed
+make: *** [cmTC_cfc87/fast] Error 2
+
+File /playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
+/* */
+#include <QtCore/qglobal.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef Q_WS_WIN
+  return ((int*)(&Q_WS_WIN))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the Q_WS_QWS exist failed with the following output:
+Change Dir: /playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_63581/fast"
+/usr/bin/make -f CMakeFiles/cmTC_63581.dir/build.make CMakeFiles/cmTC_63581.dir/build
+make[1]: Entering directory '/playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_63581.dir/CheckSymbolExists.cxx.o
+/usr/bin/g++   -I/usr/include/qt4   -o CMakeFiles/cmTC_63581.dir/CheckSymbolExists.cxx.o -c /playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx
+/playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx: In function ‘int main(int, char**)’:
+/playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:8:19: error: ‘Q_WS_QWS’ was not declared in this scope
+   return ((int*)(&Q_WS_QWS))[argc];
+                   ^~~~~~~~
+/playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:8:19: note: suggested alternative: ‘Q_WS_X11’
+   return ((int*)(&Q_WS_QWS))[argc];
+                   ^~~~~~~~
+                   Q_WS_X11
+CMakeFiles/cmTC_63581.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_63581.dir/CheckSymbolExists.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_63581.dir/CheckSymbolExists.cxx.o] Error 1
+make[1]: Leaving directory '/playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_63581/fast' failed
+make: *** [cmTC_63581/fast] Error 2
+
+File /playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
+/* */
+#include <QtCore/qglobal.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef Q_WS_QWS
+  return ((int*)(&Q_WS_QWS))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the Q_WS_MAC exist failed with the following output:
+Change Dir: /playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_5b650/fast"
+/usr/bin/make -f CMakeFiles/cmTC_5b650.dir/build.make CMakeFiles/cmTC_5b650.dir/build
+make[1]: Entering directory '/playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_5b650.dir/CheckSymbolExists.cxx.o
+/usr/bin/g++   -I/usr/include/qt4   -o CMakeFiles/cmTC_5b650.dir/CheckSymbolExists.cxx.o -c /playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx
+/playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx: In function ‘int main(int, char**)’:
+/playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:8:19: error: ‘Q_WS_MAC’ was not declared in this scope
+   return ((int*)(&Q_WS_MAC))[argc];
+                   ^~~~~~~~
+/playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:8:19: note: suggested alternative: ‘Q_WS_X11’
+   return ((int*)(&Q_WS_MAC))[argc];
+                   ^~~~~~~~
+                   Q_WS_X11
+CMakeFiles/cmTC_5b650.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_5b650.dir/CheckSymbolExists.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_5b650.dir/CheckSymbolExists.cxx.o] Error 1
+make[1]: Leaving directory '/playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_5b650/fast' failed
+make: *** [cmTC_5b650/fast] Error 2
+
+File /playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
+/* */
+#include <QtCore/qglobal.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef Q_WS_MAC
+  return ((int*)(&Q_WS_MAC))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the CXX compiler accepts the flag -features=no%anachronisms passed with the following output:
+Change Dir: /playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_98a78/fast"
+/usr/bin/make -f CMakeFiles/cmTC_98a78.dir/build.make CMakeFiles/cmTC_98a78.dir/build
+make[1]: Entering directory '/playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_98a78.dir/src.cxx.o
+/usr/bin/g++    -features=no%anachronisms   -o CMakeFiles/cmTC_98a78.dir/src.cxx.o -c /playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp/src.cxx
+g++: error: unrecognized command line option ‘-features=no%anachronisms’
+CMakeFiles/cmTC_98a78.dir/build.make:65: recipe for target 'CMakeFiles/cmTC_98a78.dir/src.cxx.o' failed
+make[1]: *** [CMakeFiles/cmTC_98a78.dir/src.cxx.o] Error 1
+make[1]: Leaving directory '/playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles/CMakeTmp'
+Makefile:126: recipe for target 'cmTC_98a78/fast' failed
+make: *** [cmTC_98a78/fast] Error 2
+
+Source file was:
+int main() { return 0;}
+
