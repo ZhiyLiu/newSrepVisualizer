@@ -47,7 +47,7 @@ SET(CPACK_OUTPUT_CONFIG_FILE "/playpen/workspace/ra_job/newSrepVisualizer/build/
 SET(CPACK_PACKAGE_DEFAULT_LOCATION "/")
 SET(CPACK_PACKAGE_DESCRIPTION_FILE "/playpen/software/Slicer/README.txt")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "This is an example of a simple extension")
-SET(CPACK_PACKAGE_FILE_NAME "27193-linux-amd64-newSrepVisualizer-gitddabc55-2017-06-13")
+SET(CPACK_PACKAGE_FILE_NAME "27193-linux-amd64-newSrepVisualizer-git1ae1973-2018-05-26")
 SET(CPACK_PACKAGE_INSTALL_DIRECTORY "newSrepVisualizer 0.1.1")
 SET(CPACK_PACKAGE_INSTALL_REGISTRY_KEY "newSrepVisualizer 0.1.1")
 SET(CPACK_PACKAGE_NAME "newSrepVisualizer")

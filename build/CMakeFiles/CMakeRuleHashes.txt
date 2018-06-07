@@ -31,7 +31,9 @@ f24d9e14697d87e590ed8992655610d0 CMakeFiles/NightlyTest
 4bdd63a45f34d52db5a1e1d2493f61b7 CMakeFiles/NightlyUpdate
 685d4c5afd3e5da14b483fddfc089f9a CMakeFiles/packageupload
 b9fe1d1f94408cec081de4d99d71ab6c lib/Slicer-4.9/qt-scripted-modules/Lib/__init__.py
+6d591c79467d973c462d12c5246a4ee7 lib/Slicer-4.9/qt-scripted-modules/Lib/legacyTransformer.py
 af1d5c9cdfc06d2610d5de612be553fe lib/Slicer-4.9/qt-scripted-modules/Lib/srep.py
+03841b80d6286f307ce35b967c2af9a9 lib/Slicer-4.9/qt-scripted-modules/Lib/test.py
 f073592bc0ed7465b8c902a00a4a1e30 lib/Slicer-4.9/qt-scripted-modules/Resources/Icons/visualizer.png
 2af73710c793961a84aac8125a547a93 lib/Slicer-4.9/qt-scripted-modules/visualizer.py
 a2d8869452645f0f37d5e5332e55629a visualizer/CMakeFiles/CompilevisualizerPythonFiles

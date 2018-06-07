@@ -3,6 +3,7 @@ import unittest
 import vtk, qt, ctk, slicer
 from slicer.ScriptedLoadableModule import *
 import logging
+from Lib.legacyTransformer import legacyTransformer as transformer
 from Lib import *
 import numpy as np
 import xml.etree.ElementTree as ET
@@ -59,22 +60,34 @@ class visualizerWidget(ScriptedLoadableModuleWidget):
         #
         # input volume selector
         #
-        self.inputSelector = slicer.qMRMLNodeComboBox()
-        self.inputSelector.nodeTypes = ["vtkMRMLScalarVolumeNode"]
-        self.inputSelector.selectNodeUponCreation = True
-        self.inputSelector.addEnabled = False
-        self.inputSelector.removeEnabled = False
-        self.inputSelector.noneEnabled = False
-        self.inputSelector.showHidden = False
-        self.inputSelector.showChildNodeTypes = False
-        self.inputSelector.setMRMLScene(slicer.mrmlScene)
-        self.inputSelector.setToolTip("Pick the input to the algorithm.")
-        parametersFormLayout.addRow("Input Volume: ", self.inputSelector)
+        # self.inputSelector = slicer.qMRMLNodeComboBox()
+        # self.inputSelector.nodeTypes = ["vtkMRMLScalarVolumeNode"]
+        # self.inputSelector.selectNodeUponCreation = True
+        # self.inputSelector.addEnabled = False
+        # self.inputSelector.removeEnabled = False
+        # self.inputSelector.noneEnabled = False
+        # self.inputSelector.showHidden = False
+        # self.inputSelector.showChildNodeTypes = False
+        # self.inputSelector.setMRMLScene(slicer.mrmlScene)
+        # self.inputSelector.setToolTip("Pick the input to the algorithm.")
+        # parametersFormLayout.addRow("Input Volume: ", self.inputSelector)
 
+        # set distance of fold curve from interior points
+        self.distSlider = slicer.qMRMLSliderWidget()
+#        self.distSlider.setMaximum(0.6)
+#        self.distSlider.setMinimum(0.0)
+        self.distSlider.setProperty('maximum', 0.6)
+        self.distSlider.setProperty('minimum', 0.0)
+        self.distSlider.setProperty('singleStep', 0.01)
+#        self.distSlider.setValue(0.02)
+
+        self.distSlider.setToolTip("Parameter used in transformation from legacy s-rep to new s-rep")
+        parametersFormLayout.addRow("Set distance to expand fold curve", self.distSlider)
+        
         #
         # Apply Button
         #
-        self.applyButton = qt.QPushButton("Select srep header file")
+        self.applyButton = qt.QPushButton("Select s-rep file")
         self.applyButton.toolTip = "Run the algorithm."
         parametersFormLayout.addRow(self.applyButton)
 
@@ -95,7 +108,8 @@ class visualizerWidget(ScriptedLoadableModuleWidget):
     def onApplyButton(self):
         logic = visualizerLogic()
         flag = self.boundarySurfaceRendering.checked
-        logic.run(flag)
+        dist = self.distSlider.value
+        logic.run(flag,dist)
 
 
 #
@@ -172,18 +186,7 @@ class visualizerLogic(ScriptedLoadableModuleLogic):
     def distance(self, p0, p1):
         return math.sqrt((p0[0] - p1[0]) ** 2 + (p0[1] - p1[1]) ** 2 + (p0[2] - p1[2]) ** 2 )
 
-    def run(self,renderFlag):
-
-        """
-        Run the actual algorithm
-        """
-        filename = qt.QFileDialog.getOpenFileName()
-        if filename == '':
-            logging.error('Input file name is empty')
-            return False
-        
-        logging.info('Processing started')
-        
+    def visualizeNewSrep(self, filename):
         # 1. parse header file
         tree = ET.parse(filename)
         upFileName = ''
@@ -451,7 +454,7 @@ class visualizerLogic(ScriptedLoadableModuleLogic):
         connection_model.SetAndObservePolyData(connection_polydata)
         # model display node 
         connection_model_display = slicer.vtkMRMLModelDisplayNode()
-        connection_model_display.SetColor(1, 1, 0)
+        connection_model_display.SetColor(0, 0, 0)
         connection_model_display.SetScene(scene)
         connection_model_display.SetLineWidth(3.0)
         connection_model_display.SetBackfaceCulling(0)
@@ -459,8 +462,38 @@ class visualizerLogic(ScriptedLoadableModuleLogic):
         connection_model.SetAndObserveDisplayNodeID(connection_model_display.GetID())
         scene.AddNode(connection_model)
 
+    def run(self,renderFlag, dist):
+
+        logging.info("distance:"+ str(dist))
+        """
+        Run the actual algorithm
+        """
+        filename = qt.QFileDialog.getOpenFileName()
+        if filename == '':
+            logging.error('Input file name is empty')
+            return False
+        
+        logging.info('Processing started')
+        if filename.endswith('.m3d'):
+            if dist == 0.0:
+                qt.QMessageBox.information(slicer.util.mainWindow(), 'S-rep information', 'The input is legacy s-rep. Please set a positive distance for it.')
+                return True
+            newSrepFile = self.transformLegacySrep(filename, dist)
+            self.visualizeNewSrep(newSrepFile)
+        elif filename.endswith('.xml'):
+            logging.info('The input is new s-rep')
+            self.visualizeNewSrep(filename)
+        else:
+            logging.error('Need legacy s-rep(*.m3d) or new s-rep files.')
+            return False
+            
         logging.info('Processing completed')
         return True
+    def transformLegacySrep(self, filename, dist):
+        logging.info('The input is legacy s-rep, now converting to new s-rep')
+        outputPrefix = os.getcwd() + '/tmp/'
+        transformer().transformLegacySrep(filename, outputPrefix, dist)
+        return outputPrefix + 'header.xml'
 
 
 class visualizerTest(ScriptedLoadableModuleTest):

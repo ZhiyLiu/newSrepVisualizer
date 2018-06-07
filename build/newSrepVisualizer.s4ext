@@ -6,8 +6,8 @@
 
 # This is source code manager (i.e. svn)
 scm git
-scmurl https://github.com/jphong89/legacyM3DParser.git
-scmrevision ddabc55
+scmurl https://github.com/ZhiyLiu/newSrepVisualizer.git
+scmrevision 1ae1973
 
 # list dependencies
 # - These should be names of other modules that have .s4ext files

@@ -10,6 +10,7 @@ set(MODULE_PYTHON_RESOURCES
   Resources/Icons/${MODULE_NAME}.png
   Lib/__init__.py
   Lib/srep.py
+  Lib/legacyTransformer.py
   )
 
 #-----------------------------------------------------------------------------

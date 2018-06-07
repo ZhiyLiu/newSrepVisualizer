@@ -56,6 +56,8 @@ include visualizer/CMakeFiles/CopyvisualizerPythonResourceFiles.dir/progress.mak
 visualizer/CMakeFiles/CopyvisualizerPythonResourceFiles: lib/Slicer-4.9/qt-scripted-modules/Resources/Icons/visualizer.png
 visualizer/CMakeFiles/CopyvisualizerPythonResourceFiles: lib/Slicer-4.9/qt-scripted-modules/Lib/__init__.py
 visualizer/CMakeFiles/CopyvisualizerPythonResourceFiles: lib/Slicer-4.9/qt-scripted-modules/Lib/srep.py
+visualizer/CMakeFiles/CopyvisualizerPythonResourceFiles: lib/Slicer-4.9/qt-scripted-modules/Lib/legacyTransformer.py
+visualizer/CMakeFiles/CopyvisualizerPythonResourceFiles: lib/Slicer-4.9/qt-scripted-modules/Lib/test.py
 
 
 lib/Slicer-4.9/qt-scripted-modules/Resources/Icons/visualizer.png: ../visualizer/Resources/Icons/visualizer.png
@@ -70,10 +72,20 @@ lib/Slicer-4.9/qt-scripted-modules/Lib/srep.py: ../visualizer/Lib/srep.py
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Copying python Resource: Lib/srep.py"
 	cd /playpen/workspace/ra_job/newSrepVisualizer/build/visualizer && /playpen/software/cmake-3.8.2-Linux-x86_64/bin/cmake -E copy /playpen/workspace/ra_job/newSrepVisualizer/visualizer/Lib/srep.py /playpen/workspace/ra_job/newSrepVisualizer/build/lib/Slicer-4.9/qt-scripted-modules/Lib/srep.py
 
+lib/Slicer-4.9/qt-scripted-modules/Lib/legacyTransformer.py: ../visualizer/Lib/legacyTransformer.py
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Copying python Resource: Lib/legacyTransformer.py"
+	cd /playpen/workspace/ra_job/newSrepVisualizer/build/visualizer && /playpen/software/cmake-3.8.2-Linux-x86_64/bin/cmake -E copy /playpen/workspace/ra_job/newSrepVisualizer/visualizer/Lib/legacyTransformer.py /playpen/workspace/ra_job/newSrepVisualizer/build/lib/Slicer-4.9/qt-scripted-modules/Lib/legacyTransformer.py
+
+lib/Slicer-4.9/qt-scripted-modules/Lib/test.py: ../visualizer/Lib/test.py
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/playpen/workspace/ra_job/newSrepVisualizer/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Copying python Resource: Lib/test.py"
+	cd /playpen/workspace/ra_job/newSrepVisualizer/build/visualizer && /playpen/software/cmake-3.8.2-Linux-x86_64/bin/cmake -E copy /playpen/workspace/ra_job/newSrepVisualizer/visualizer/Lib/test.py /playpen/workspace/ra_job/newSrepVisualizer/build/lib/Slicer-4.9/qt-scripted-modules/Lib/test.py
+
 CopyvisualizerPythonResourceFiles: visualizer/CMakeFiles/CopyvisualizerPythonResourceFiles
 CopyvisualizerPythonResourceFiles: lib/Slicer-4.9/qt-scripted-modules/Resources/Icons/visualizer.png
 CopyvisualizerPythonResourceFiles: lib/Slicer-4.9/qt-scripted-modules/Lib/__init__.py
 CopyvisualizerPythonResourceFiles: lib/Slicer-4.9/qt-scripted-modules/Lib/srep.py
+CopyvisualizerPythonResourceFiles: lib/Slicer-4.9/qt-scripted-modules/Lib/legacyTransformer.py
+CopyvisualizerPythonResourceFiles: lib/Slicer-4.9/qt-scripted-modules/Lib/test.py
 CopyvisualizerPythonResourceFiles: visualizer/CMakeFiles/CopyvisualizerPythonResourceFiles.dir/build.make
 
 .PHONY : CopyvisualizerPythonResourceFiles

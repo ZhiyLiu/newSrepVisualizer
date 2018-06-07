@@ -576,7 +576,7 @@ QT_QT3SUPPORTWIDGETS_PLUGIN_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/qt4/plugi
 QT_QT3SUPPORT_INCLUDE_DIR:PATH=/usr/include/qt4/Qt3Support
 
 //The Qt QT3SUPPORT library
-QT_QT3SUPPORT_LIBRARY:STRING=/usr/lib/x86_64-linux-gnu/libQt3Support.so
+QT_QT3SUPPORT_LIBRARY:STRING=optimized;/usr/lib/x86_64-linux-gnu/libQt3Support.so;debug;/usr/lib/x86_64-linux-gnu/libQt3Support.so
 
 //Path to a library.
 QT_QT3SUPPORT_LIBRARY_DEBUG:FILEPATH=QT_QT3SUPPORT_LIBRARY_DEBUG-NOTFOUND
@@ -621,7 +621,7 @@ QT_QTASSISTANT_LIBRARY_DEBUG:FILEPATH=QT_QTASSISTANT_LIBRARY_DEBUG-NOTFOUND
 QT_QTASSISTANT_LIBRARY_RELEASE:FILEPATH=QT_QTASSISTANT_LIBRARY_RELEASE-NOTFOUND
 
 //The Qt QTCLUCENE library
-QT_QTCLUCENE_LIBRARY:STRING=/usr/lib/x86_64-linux-gnu/libQtCLucene.so
+QT_QTCLUCENE_LIBRARY:STRING=optimized;/usr/lib/x86_64-linux-gnu/libQtCLucene.so;debug;/usr/lib/x86_64-linux-gnu/libQtCLucene.so
 
 //Path to a library.
 QT_QTCLUCENE_LIBRARY_DEBUG:FILEPATH=QT_QTCLUCENE_LIBRARY_DEBUG-NOTFOUND
@@ -633,7 +633,7 @@ QT_QTCLUCENE_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libQtCLucene.so
 QT_QTCORE_INCLUDE_DIR:PATH=/usr/include/qt4/QtCore
 
 //The Qt QTCORE library
-QT_QTCORE_LIBRARY:STRING=/usr/lib/x86_64-linux-gnu/libQtCore.so
+QT_QTCORE_LIBRARY:STRING=optimized;/usr/lib/x86_64-linux-gnu/libQtCore.so;debug;/usr/lib/x86_64-linux-gnu/libQtCore.so
 
 //Path to a library.
 QT_QTCORE_LIBRARY_DEBUG:FILEPATH=QT_QTCORE_LIBRARY_DEBUG-NOTFOUND
@@ -645,7 +645,7 @@ QT_QTCORE_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libQtCore.so
 QT_QTDBUS_INCLUDE_DIR:PATH=/usr/include/qt4/QtDBus
 
 //The Qt QTDBUS library
-QT_QTDBUS_LIBRARY:STRING=/usr/lib/x86_64-linux-gnu/libQtDBus.so
+QT_QTDBUS_LIBRARY:STRING=optimized;/usr/lib/x86_64-linux-gnu/libQtDBus.so;debug;/usr/lib/x86_64-linux-gnu/libQtDBus.so
 
 //Path to a library.
 QT_QTDBUS_LIBRARY_DEBUG:FILEPATH=QT_QTDBUS_LIBRARY_DEBUG-NOTFOUND
@@ -657,7 +657,7 @@ QT_QTDBUS_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libQtDBus.so
 QT_QTDECLARATIVE_INCLUDE_DIR:PATH=/usr/include/qt4/QtDeclarative
 
 //The Qt QTDECLARATIVE library
-QT_QTDECLARATIVE_LIBRARY:STRING=/usr/lib/x86_64-linux-gnu/libQtDeclarative.so
+QT_QTDECLARATIVE_LIBRARY:STRING=optimized;/usr/lib/x86_64-linux-gnu/libQtDeclarative.so;debug;/usr/lib/x86_64-linux-gnu/libQtDeclarative.so
 
 //Path to a library.
 QT_QTDECLARATIVE_LIBRARY_DEBUG:FILEPATH=QT_QTDECLARATIVE_LIBRARY_DEBUG-NOTFOUND
@@ -669,7 +669,7 @@ QT_QTDECLARATIVE_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libQtDeclara
 QT_QTDESIGNERCOMPONENTS_INCLUDE_DIR:PATH=/usr/include/qt4/QtDesigner
 
 //The Qt QTDESIGNERCOMPONENTS library
-QT_QTDESIGNERCOMPONENTS_LIBRARY:STRING=/usr/lib/x86_64-linux-gnu/libQtDesignerComponents.so
+QT_QTDESIGNERCOMPONENTS_LIBRARY:STRING=optimized;/usr/lib/x86_64-linux-gnu/libQtDesignerComponents.so;debug;/usr/lib/x86_64-linux-gnu/libQtDesignerComponents.so
 
 //Path to a library.
 QT_QTDESIGNERCOMPONENTS_LIBRARY_DEBUG:FILEPATH=QT_QTDESIGNERCOMPONENTS_LIBRARY_DEBUG-NOTFOUND
@@ -681,7 +681,7 @@ QT_QTDESIGNERCOMPONENTS_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libQt
 QT_QTDESIGNER_INCLUDE_DIR:PATH=/usr/include/qt4/QtDesigner
 
 //The Qt QTDESIGNER library
-QT_QTDESIGNER_LIBRARY:STRING=/usr/lib/x86_64-linux-gnu/libQtDesigner.so
+QT_QTDESIGNER_LIBRARY:STRING=optimized;/usr/lib/x86_64-linux-gnu/libQtDesigner.so;debug;/usr/lib/x86_64-linux-gnu/libQtDesigner.so
 
 //Path to a library.
 QT_QTDESIGNER_LIBRARY_DEBUG:FILEPATH=QT_QTDESIGNER_LIBRARY_DEBUG-NOTFOUND
@@ -699,7 +699,7 @@ QT_QTGA_PLUGIN_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/qt4/plugins/imageforma
 QT_QTGUI_INCLUDE_DIR:PATH=/usr/include/qt4/QtGui
 
 //The Qt QTGUI library
-QT_QTGUI_LIBRARY:STRING=/usr/lib/x86_64-linux-gnu/libQtGui.so
+QT_QTGUI_LIBRARY:STRING=optimized;/usr/lib/x86_64-linux-gnu/libQtGui.so;debug;/usr/lib/x86_64-linux-gnu/libQtGui.so
 
 //Path to a library.
 QT_QTGUI_LIBRARY_DEBUG:FILEPATH=QT_QTGUI_LIBRARY_DEBUG-NOTFOUND
@@ -711,7 +711,7 @@ QT_QTGUI_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libQtGui.so
 QT_QTHELP_INCLUDE_DIR:PATH=/usr/include/qt4/QtHelp
 
 //The Qt QTHELP library
-QT_QTHELP_LIBRARY:STRING=/usr/lib/x86_64-linux-gnu/libQtHelp.so
+QT_QTHELP_LIBRARY:STRING=optimized;/usr/lib/x86_64-linux-gnu/libQtHelp.so;debug;/usr/lib/x86_64-linux-gnu/libQtHelp.so
 
 //Path to a library.
 QT_QTHELP_LIBRARY_DEBUG:FILEPATH=QT_QTHELP_LIBRARY_DEBUG-NOTFOUND
@@ -753,7 +753,7 @@ QT_QTMULTIMEDIA_LIBRARY_RELEASE:FILEPATH=QT_QTMULTIMEDIA_LIBRARY_RELEASE-NOTFOUN
 QT_QTNETWORK_INCLUDE_DIR:PATH=/usr/include/qt4/QtNetwork
 
 //The Qt QTNETWORK library
-QT_QTNETWORK_LIBRARY:STRING=/usr/lib/x86_64-linux-gnu/libQtNetwork.so
+QT_QTNETWORK_LIBRARY:STRING=optimized;/usr/lib/x86_64-linux-gnu/libQtNetwork.so;debug;/usr/lib/x86_64-linux-gnu/libQtNetwork.so
 
 //Path to a library.
 QT_QTNETWORK_LIBRARY_DEBUG:FILEPATH=QT_QTNETWORK_LIBRARY_DEBUG-NOTFOUND
@@ -777,7 +777,7 @@ QT_QTNSPLUGIN_LIBRARY_RELEASE:FILEPATH=QT_QTNSPLUGIN_LIBRARY_RELEASE-NOTFOUND
 QT_QTOPENGL_INCLUDE_DIR:PATH=/usr/include/qt4/QtOpenGL
 
 //The Qt QTOPENGL library
-QT_QTOPENGL_LIBRARY:STRING=/usr/lib/x86_64-linux-gnu/libQtOpenGL.so
+QT_QTOPENGL_LIBRARY:STRING=optimized;/usr/lib/x86_64-linux-gnu/libQtOpenGL.so;debug;/usr/lib/x86_64-linux-gnu/libQtOpenGL.so
 
 //Path to a library.
 QT_QTOPENGL_LIBRARY_DEBUG:FILEPATH=QT_QTOPENGL_LIBRARY_DEBUG-NOTFOUND
@@ -801,7 +801,7 @@ QT_QTSCRIPTDBUS_PLUGIN_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/qt4/plugins/sc
 QT_QTSCRIPTTOOLS_INCLUDE_DIR:PATH=/usr/include/qt4/QtScriptTools
 
 //The Qt QTSCRIPTTOOLS library
-QT_QTSCRIPTTOOLS_LIBRARY:STRING=/usr/lib/x86_64-linux-gnu/libQtScriptTools.so
+QT_QTSCRIPTTOOLS_LIBRARY:STRING=optimized;/usr/lib/x86_64-linux-gnu/libQtScriptTools.so;debug;/usr/lib/x86_64-linux-gnu/libQtScriptTools.so
 
 //Path to a library.
 QT_QTSCRIPTTOOLS_LIBRARY_DEBUG:FILEPATH=QT_QTSCRIPTTOOLS_LIBRARY_DEBUG-NOTFOUND
@@ -813,7 +813,7 @@ QT_QTSCRIPTTOOLS_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libQtScriptT
 QT_QTSCRIPT_INCLUDE_DIR:PATH=/usr/include/qt4/QtScript
 
 //The Qt QTSCRIPT library
-QT_QTSCRIPT_LIBRARY:STRING=/usr/lib/x86_64-linux-gnu/libQtScript.so
+QT_QTSCRIPT_LIBRARY:STRING=optimized;/usr/lib/x86_64-linux-gnu/libQtScript.so;debug;/usr/lib/x86_64-linux-gnu/libQtScript.so
 
 //Path to a library.
 QT_QTSCRIPT_LIBRARY_DEBUG:FILEPATH=QT_QTSCRIPT_LIBRARY_DEBUG-NOTFOUND
@@ -825,7 +825,7 @@ QT_QTSCRIPT_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libQtScript.so
 QT_QTSQL_INCLUDE_DIR:PATH=/usr/include/qt4/QtSql
 
 //The Qt QTSQL library
-QT_QTSQL_LIBRARY:STRING=/usr/lib/x86_64-linux-gnu/libQtSql.so
+QT_QTSQL_LIBRARY:STRING=optimized;/usr/lib/x86_64-linux-gnu/libQtSql.so;debug;/usr/lib/x86_64-linux-gnu/libQtSql.so
 
 //Path to a library.
 QT_QTSQL_LIBRARY_DEBUG:FILEPATH=QT_QTSQL_LIBRARY_DEBUG-NOTFOUND
@@ -837,7 +837,7 @@ QT_QTSQL_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libQtSql.so
 QT_QTSVG_INCLUDE_DIR:PATH=/usr/include/qt4/QtSvg
 
 //The Qt QTSVG library
-QT_QTSVG_LIBRARY:STRING=/usr/lib/x86_64-linux-gnu/libQtSvg.so
+QT_QTSVG_LIBRARY:STRING=optimized;/usr/lib/x86_64-linux-gnu/libQtSvg.so;debug;/usr/lib/x86_64-linux-gnu/libQtSvg.so
 
 //Path to a library.
 QT_QTSVG_LIBRARY_DEBUG:FILEPATH=QT_QTSVG_LIBRARY_DEBUG-NOTFOUND
@@ -849,7 +849,7 @@ QT_QTSVG_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libQtSvg.so
 QT_QTTEST_INCLUDE_DIR:PATH=/usr/include/qt4/QtTest
 
 //The Qt QTTEST library
-QT_QTTEST_LIBRARY:STRING=/usr/lib/x86_64-linux-gnu/libQtTest.so
+QT_QTTEST_LIBRARY:STRING=optimized;/usr/lib/x86_64-linux-gnu/libQtTest.so;debug;/usr/lib/x86_64-linux-gnu/libQtTest.so
 
 //Path to a library.
 QT_QTTEST_LIBRARY_DEBUG:FILEPATH=QT_QTTEST_LIBRARY_DEBUG-NOTFOUND
@@ -861,7 +861,7 @@ QT_QTTEST_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libQtTest.so
 QT_QTUITOOLS_INCLUDE_DIR:PATH=/usr/include/qt4/QtUiTools
 
 //The Qt QTUITOOLS library
-QT_QTUITOOLS_LIBRARY:STRING=/usr/lib/x86_64-linux-gnu/libQtUiTools.a
+QT_QTUITOOLS_LIBRARY:STRING=optimized;/usr/lib/x86_64-linux-gnu/libQtUiTools.a;debug;/usr/lib/x86_64-linux-gnu/libQtUiTools.a
 
 //Path to a library.
 QT_QTUITOOLS_LIBRARY_DEBUG:FILEPATH=QT_QTUITOOLS_LIBRARY_DEBUG-NOTFOUND
@@ -879,7 +879,7 @@ QT_QTWCODECS_PLUGIN_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/qt4/plugins/codec
 QT_QTWEBKIT_INCLUDE_DIR:PATH=/usr/include/qt4/QtWebKit
 
 //The Qt QTWEBKIT library
-QT_QTWEBKIT_LIBRARY:STRING=/usr/lib/x86_64-linux-gnu/libQtWebKit.so
+QT_QTWEBKIT_LIBRARY:STRING=optimized;/usr/lib/x86_64-linux-gnu/libQtWebKit.so;debug;/usr/lib/x86_64-linux-gnu/libQtWebKit.so
 
 //Path to a library.
 QT_QTWEBKIT_LIBRARY_DEBUG:FILEPATH=QT_QTWEBKIT_LIBRARY_DEBUG-NOTFOUND
@@ -891,7 +891,7 @@ QT_QTWEBKIT_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libQtWebKit.so
 QT_QTXMLPATTERNS_INCLUDE_DIR:PATH=/usr/include/qt4/QtXmlPatterns
 
 //The Qt QTXMLPATTERNS library
-QT_QTXMLPATTERNS_LIBRARY:STRING=/usr/lib/x86_64-linux-gnu/libQtXmlPatterns.so
+QT_QTXMLPATTERNS_LIBRARY:STRING=optimized;/usr/lib/x86_64-linux-gnu/libQtXmlPatterns.so;debug;/usr/lib/x86_64-linux-gnu/libQtXmlPatterns.so
 
 //Path to a library.
 QT_QTXMLPATTERNS_LIBRARY_DEBUG:FILEPATH=QT_QTXMLPATTERNS_LIBRARY_DEBUG-NOTFOUND
@@ -903,7 +903,7 @@ QT_QTXMLPATTERNS_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libQtXmlPatt
 QT_QTXML_INCLUDE_DIR:PATH=/usr/include/qt4/QtXml
 
 //The Qt QTXML library
-QT_QTXML_LIBRARY:STRING=/usr/lib/x86_64-linux-gnu/libQtXml.so
+QT_QTXML_LIBRARY:STRING=optimized;/usr/lib/x86_64-linux-gnu/libQtXml.so;debug;/usr/lib/x86_64-linux-gnu/libQtXml.so
 
 //Path to a library.
 QT_QTXML_LIBRARY_DEBUG:FILEPATH=QT_QTXML_LIBRARY_DEBUG-NOTFOUND
@@ -1199,7 +1199,7 @@ FIND_PACKAGE_MESSAGE_DETAILS_PythonInterp:INTERNAL=[/playpen/software/Slicer-Sup
 //Details about finding PythonLibs
 FIND_PACKAGE_MESSAGE_DETAILS_PythonLibs:INTERNAL=[/playpen/software/Slicer-SuperBuild-Debug/python-install/lib/libpython2.7.so][/playpen/software/Slicer-SuperBuild-Debug/python-install/include/python2.7][v()]
 //Details about finding Qt4
-FIND_PACKAGE_MESSAGE_DETAILS_Qt4:INTERNAL=[/usr/bin/qmake][/usr/lib/x86_64-linux-gnu/qt4/bin/moc][/usr/lib/x86_64-linux-gnu/qt4/bin/rcc][/usr/lib/x86_64-linux-gnu/qt4/bin/uic][/usr/include/qt4][/usr/lib/x86_64-linux-gnu][/usr/lib/x86_64-linux-gnu/libQtCore.so][v4.8.7()]
+FIND_PACKAGE_MESSAGE_DETAILS_Qt4:INTERNAL=[/usr/bin/qmake][/usr/lib/x86_64-linux-gnu/qt4/bin/moc][/usr/lib/x86_64-linux-gnu/qt4/bin/rcc][/usr/lib/x86_64-linux-gnu/qt4/bin/uic][/usr/include/qt4][/usr/lib/x86_64-linux-gnu][optimized;/usr/lib/x86_64-linux-gnu/libQtCore.so;debug;/usr/lib/x86_64-linux-gnu/libQtCore.so][v4.8.7()]
 //Details about finding Subversion
 FIND_PACKAGE_MESSAGE_DETAILS_Subversion:INTERNAL=[/usr/bin/svn][v1.9.7()]
 //FreeSurfer includes

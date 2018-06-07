@@ -3,6 +3,8 @@ file(REMOVE_RECURSE
   "../lib/Slicer-4.9/qt-scripted-modules/Resources/Icons/visualizer.png"
   "../lib/Slicer-4.9/qt-scripted-modules/Lib/__init__.py"
   "../lib/Slicer-4.9/qt-scripted-modules/Lib/srep.py"
+  "../lib/Slicer-4.9/qt-scripted-modules/Lib/legacyTransformer.py"
+  "../lib/Slicer-4.9/qt-scripted-modules/Lib/test.py"
 )
 
 # Per-language clean rules from dependency scanning.

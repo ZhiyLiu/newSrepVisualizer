@@ -3,21 +3,23 @@ import unittest
 import vtk, qt, ctk, slicer
 from slicer.ScriptedLoadableModule import *
 import logging
+from Lib.legacyTransformer import legacyTransformer as transformer
 from Lib import *
 import numpy as np
-
+import xml.etree.ElementTree as ET
+import math
 #
 # visualize new srep format
 #
 
-class parser(ScriptedLoadableModule):
+class visualizer(ScriptedLoadableModule):
     """Uses ScriptedLoadableModule base class, available at:
     https://github.com/Slicer/Slicer/blob/master/Base/Python/slicer/ScriptedLoadableModule.py
     """
 
     def __init__(self, parent):
         ScriptedLoadableModule.__init__(self, parent)
-        self.parent.title = "parser"  # TODO make this more human readable by adding spaces
+        self.parent.title = "visualizer"  # TODO make this more human readable by adding spaces
         self.parent.categories = ["Examples"]
         self.parent.dependencies = []
         self.parent.contributors = ["John Doe (AnyWare Corp.)"]  # replace with "Firstname Lastname (Organization)"
@@ -32,10 +34,10 @@ class parser(ScriptedLoadableModule):
 
 
 #
-# parserWidget
+# visualizerWidget
 #
 
-class parserWidget(ScriptedLoadableModuleWidget):
+class visualizerWidget(ScriptedLoadableModuleWidget):
     """Uses ScriptedLoadableModuleWidget base class, available at:
     https://github.com/Slicer/Slicer/blob/master/Base/Python/slicer/ScriptedLoadableModule.py
     """
@@ -92,16 +94,16 @@ class parserWidget(ScriptedLoadableModuleWidget):
         pass
 
     def onApplyButton(self):
-        logic = parserLogic()
+        logic = visualizerLogic()
         flag = self.boundarySurfaceRendering.checked
         logic.run(flag)
 
 
 #
-# parserLogic
+# visualizerLogic
 #
 
-class parserLogic(ScriptedLoadableModuleLogic):
+class visualizerLogic(ScriptedLoadableModuleLogic):
     """This class should implement all the actual
     computation done by your module.  The interface
     should be such that other python code can import
@@ -168,46 +170,41 @@ class parserLogic(ScriptedLoadableModuleLogic):
         numEndAtoms = 0
         numStdAtoms = 0
 
+    def distance(self, p0, p1):
+        return math.sqrt((p0[0] - p1[0]) ** 2 + (p0[1] - p1[1]) ** 2 + (p0[2] - p1[2]) ** 2 )
 
-    def run(self,renderFlag):
+    def visualizeNewSrep(self, filename):
+        # 1. parse header file
+        tree = ET.parse(filename)
+        upFileName = ''
+        crestFileName = ''
+        downFileName = ''
+        nCols = 0
+        nRows = 0
+        for child in tree.getroot():
+            if child.tag == 'upSpoke':
+                upFileName = child.text
+            elif child.tag == 'downSpoke':
+                downFileName = child.text
+            elif child.tag == 'crestSpoke':
+                crestFileName = child.text
+            elif child.tag == 'nRows':
+                nRows = (int)(child.text)
+            elif child.tag == 'nCols':
+                nCols = (int)(child.text)
 
-        """
-        Run the actual algorithm
-        """
-        filename = qt.QFileDialog.getOpenFileName()
-        s = srep()
-        s.readSrepFromM3D(filename)
-        logging.info('Processing started')
+        reader = vtk.vtkXMLPolyDataReader()
+        reader.SetFileName(upFileName)
+        reader.Update()
 
+        upSpokes = reader.GetOutput()
+
+        upPointData = upSpokes.GetPointData()
+        medial_polyData = upSpokes # this is poly data for skeleton
 
         scene = slicer.mrmlScene
 
-        # medial surface
-        medial_points = vtk.vtkPoints()
-        medial_polyData = vtk.vtkPolyData()
-        medial_polyData.SetPoints(medial_points)
-        medial_poly = vtk.vtkCellArray()
-        medial_polyData.SetPolys(medial_poly)
-
-        # up spoke
-        upSpoke_points = vtk.vtkPoints()
-        upSpoke_lines = vtk.vtkCellArray()
-
-        # down spoke
-        downSpoke_points = vtk.vtkPoints()
-        downSpoke_lines = vtk.vtkCellArray()
-
-        # crest spoke
-        crestSpoke_points = vtk.vtkPoints()
-        crestSpoke_lines = vtk.vtkCellArray()
-
-        # surface points
-        boundary_surface_points = vtk.vtkPoints()
-        boundary_surface_poly = vtk.vtkCellArray()
-
-        nCols = s.fig.numCols
-        nRows = s.fig.numRows
-
+        # base line of medial sheet
         fidDisplayNode = slicer.vtkMRMLMarkupsDisplayNode()
         scene.AddNode(fidDisplayNode)
         fidNode = slicer.vtkMRMLMarkupsFiducialNode()
@@ -218,127 +215,44 @@ class parserLogic(ScriptedLoadableModuleLogic):
         fidNode.SetAndObserveDisplayNodeID(fidDisplayNode.GetID())
         # \TODO come up with better name later
 
+        # prepare for arrows for upspokes
+        upSpoke_points = vtk.vtkPoints()
+        upSpoke_lines = vtk.vtkCellArray()
+
+        arr_length = upPointData.GetArray('spokeLength')
+        arr_dirs = upPointData.GetArray('spokeDirection')
+        for i in range(upSpokes.GetNumberOfPoints()):
+            pt = [0]* 3
+            upSpokes.GetPoint(i, pt)
+            # base point of up arrows
+            id0 = upSpoke_points.InsertNextPoint(pt)
+
+            # head of up arrows
+            spoke_length = arr_length.GetValue(i)
+            baseIdx = i * 3
+            dirX = arr_dirs.GetValue(baseIdx)
+            dirY = arr_dirs.GetValue(baseIdx + 1)
+            dirZ = arr_dirs.GetValue(baseIdx + 2)
+            pt1 = [0] * 3
+            pt1[0] = pt[0] + spoke_length * dirX
+            pt1[1] = pt[1] + spoke_length * dirY
+            pt1[2] = pt[2] + spoke_length * dirZ
+            id1 = upSpoke_points.InsertNextPoint(pt1)
+
+            up_arrow = vtk.vtkLine()
+            up_arrow.GetPointIds().SetId(0, id0)
+            up_arrow.GetPointIds().SetId(1, id1)
+            upSpoke_lines.InsertNextCell(up_arrow)
+
+            fidNode.AddFiducial(pt[0], pt[1], pt[2])
+
         boundary_point_ids = []
-
-        for r in range(nRows):
-            for c in range(nCols):
-                current_boundary_point_id = []
-                current_atom = s.fig.atoms[r, c]
-                current_point = current_atom.hub.P
-                current_id = medial_points.InsertNextPoint(current_point)
-                fidNode.AddFiducial(current_point[0], current_point[1], current_point[2])
-
-                if r < nRows - 1 and c < nCols - 1:
-                    quad = vtk.vtkQuad()
-                    quad.GetPointIds().SetId(0, current_id)
-                    quad.GetPointIds().SetId(1, current_id + nCols)
-                    quad.GetPointIds().SetId(2, current_id + nCols + 1)
-                    quad.GetPointIds().SetId(3, current_id + 1)
-                    medial_poly.InsertNextCell(quad)
-
-                # \TODO: refactor repeated code as a function
-                current_upSpoke = current_atom.topSpoke
-                current_upPoint = current_point + current_upSpoke.r * current_upSpoke.U
-                bp_id = boundary_surface_points.InsertNextPoint(current_upPoint)
-                current_boundary_point_id.append(bp_id)
-
-                id0 = upSpoke_points.InsertNextPoint(current_point)
-                id1 = upSpoke_points.InsertNextPoint(current_upPoint)
-                current_up_line = vtk.vtkLine()
-                current_up_line.GetPointIds().SetId(0, id0)
-                current_up_line.GetPointIds().SetId(1, id1)
-                upSpoke_lines.InsertNextCell(current_up_line)
-
-                current_downSpoke = current_atom.botSpoke
-                current_downPoint = current_point + current_downSpoke.r * current_downSpoke.U
-                bp_id = boundary_surface_points.InsertNextPoint(current_downPoint)
-                current_boundary_point_id.append(bp_id)
-
-                id0 = downSpoke_points.InsertNextPoint(current_point)
-                id1 = downSpoke_points.InsertNextPoint(current_downPoint)
-                current_down_line = vtk.vtkLine()
-                current_down_line.GetPointIds().SetId(0, id0)
-                current_down_line.GetPointIds().SetId(1, id1)
-                downSpoke_lines.InsertNextCell(current_down_line)
-
-                if current_atom.isCrest():
-                    current_crestSpoke = current_atom.crestSpoke
-                    current_crestPoint = current_point + current_crestSpoke.r * current_crestSpoke.U
-                    bp_id = boundary_surface_points.InsertNextPoint(current_crestPoint)
-                    current_boundary_point_id.append(bp_id)
-
-                    id0 = crestSpoke_points.InsertNextPoint(current_point)
-                    id1 = crestSpoke_points.InsertNextPoint(current_crestPoint)
-                    current_crest_line = vtk.vtkLine()
-                    current_crest_line.GetPointIds().SetId(0, id0)
-                    current_crest_line.GetPointIds().SetId(1, id1)
-                    crestSpoke_lines.InsertNextCell(current_crest_line)
-
-                boundary_point_ids.append(current_boundary_point_id)
-
-        for i in range(nRows):
-            for j in range(nCols):
-                if (i == 0) or (i == nRows-1) or (j == 0) or (j == nCols-1):
-                    atomType = 1
-                else:
-                    atomType = 0
-                atomIndex = nCols * i + j
-                if atomType == 1:
-                    if (i == 0 and j < nCols - 1) or (i == nRows-1 and j < nCols -1):
-                        # horizontal
-                        crest_quad_up = vtk.vtkQuad()
-                        crest_quad_up.GetPointIds().SetId(0, boundary_point_ids[atomIndex][2])
-                        crest_quad_up.GetPointIds().SetId(1, boundary_point_ids[atomIndex + 1][2])
-                        crest_quad_up.GetPointIds().SetId(2, boundary_point_ids[atomIndex + 1][0])
-                        crest_quad_up.GetPointIds().SetId(3, boundary_point_ids[atomIndex][0])
-                        boundary_surface_poly.InsertNextCell(crest_quad_up)
-
-                        crest_quad_down = vtk.vtkQuad()
-                        crest_quad_down.GetPointIds().SetId(0, boundary_point_ids[atomIndex][2])
-                        crest_quad_down.GetPointIds().SetId(1, boundary_point_ids[atomIndex + 1][2])
-                        crest_quad_down.GetPointIds().SetId(2, boundary_point_ids[atomIndex + 1][1])
-                        crest_quad_down.GetPointIds().SetId(3, boundary_point_ids[atomIndex][1])
-                        boundary_surface_poly.InsertNextCell(crest_quad_down)
-
-                    if (j == 0 and i < nRows - 1) or (j == nCols-1 and i < nRows - 1):
-                        # vertical
-                        crest_quad_up = vtk.vtkQuad()
-                        crest_quad_up.GetPointIds().SetId(0, boundary_point_ids[atomIndex][2])
-                        crest_quad_up.GetPointIds().SetId(1, boundary_point_ids[atomIndex + nCols][2])
-                        crest_quad_up.GetPointIds().SetId(2, boundary_point_ids[atomIndex + nCols][0])
-                        crest_quad_up.GetPointIds().SetId(3, boundary_point_ids[atomIndex][0])
-                        boundary_surface_poly.InsertNextCell(crest_quad_up)
-
-                        crest_quad_down = vtk.vtkQuad()
-                        crest_quad_down.GetPointIds().SetId(0, boundary_point_ids[atomIndex][2])
-                        crest_quad_down.GetPointIds().SetId(1, boundary_point_ids[atomIndex + nCols][2])
-                        crest_quad_down.GetPointIds().SetId(2, boundary_point_ids[atomIndex + nCols][1])
-                        crest_quad_down.GetPointIds().SetId(3, boundary_point_ids[atomIndex][1])
-                        boundary_surface_poly.InsertNextCell(crest_quad_down)
-
-                if i < nRows - 1 and j < nCols - 1:
-                    # up quad first
-                    up_quad = vtk.vtkQuad()
-                    up_quad.GetPointIds().SetId(0, boundary_point_ids[atomIndex][0])
-                    up_quad.GetPointIds().SetId(1, boundary_point_ids[atomIndex + nCols][0])
-                    up_quad.GetPointIds().SetId(2, boundary_point_ids[atomIndex + nCols + 1][0])
-                    up_quad.GetPointIds().SetId(3, boundary_point_ids[atomIndex + 1][0])
-                    boundary_surface_poly.InsertNextCell(up_quad)
-
-                    down_quad = vtk.vtkQuad()
-                    down_quad.GetPointIds().SetId(0, boundary_point_ids[atomIndex][1])
-                    down_quad.GetPointIds().SetId(1, boundary_point_ids[atomIndex + nCols][1])
-                    down_quad.GetPointIds().SetId(2, boundary_point_ids[atomIndex + nCols + 1][1])
-                    down_quad.GetPointIds().SetId(3, boundary_point_ids[atomIndex + 1][1])
-                    boundary_surface_poly.InsertNextCell(down_quad)
-
-
 
         # model node for medial mesh
         medial_model = slicer.vtkMRMLModelNode()
         medial_model.SetScene(scene)
         medial_model.SetName("Medial Mesh")
-        medial_model.SetAndObservePolyData(medial_polyData)
+        medial_model.SetAndObservePolyData(reader.GetOutput())
         # model display node for the medial mesh
         medial_model_display = slicer.vtkMRMLModelDisplayNode()
         medial_model_display.SetColor(0, 0.5, 0)
@@ -350,27 +264,11 @@ class parserLogic(ScriptedLoadableModuleLogic):
         medial_model.SetAndObserveDisplayNodeID(medial_model_display.GetID())
         scene.AddNode(medial_model)
 
-        # model node for boundary mesh
-        boundary_surface_polyData = vtk.vtkPolyData()
-        boundary_surface_polyData.SetPoints(boundary_surface_points)
-        boundary_surface_polyData.SetPolys(boundary_surface_poly)
-        boundary_surface_model = slicer.vtkMRMLModelNode()
-        boundary_surface_model.SetScene(scene)
-        boundary_surface_model.SetName("Boundary Model")
-        boundary_surface_model.SetAndObservePolyData(boundary_surface_polyData)
-        # boundary display
-        boundary_surface_model_display = slicer.vtkMRMLModelDisplayNode()
-        boundary_surface_model_display.SetColor(0,0,0.5)
-        boundary_surface_model_display.SetBackfaceCulling(0)
-        boundary_surface_model_display.SetScene(scene)
-        scene.AddNode(boundary_surface_model_display)
-        boundary_surface_model.SetAndObserveDisplayNodeID(boundary_surface_model_display.GetID())
-        scene.AddNode(boundary_surface_model)
-
-        # model node for up spoke
+        # model node for up spoke (poly data for arrows)
         upSpoke_polyData = vtk.vtkPolyData()
         upSpoke_polyData.SetPoints(upSpoke_points)
         upSpoke_polyData.SetLines(upSpoke_lines)
+
         upSpoke_model = slicer.vtkMRMLModelNode()
         upSpoke_model.SetScene(scene)
         upSpoke_model.SetName("Top Spoke")
@@ -386,8 +284,42 @@ class parserLogic(ScriptedLoadableModuleLogic):
         upSpoke_model.SetAndObserveDisplayNodeID(upSpoke_model_display.GetID())
         scene.AddNode(upSpoke_model)
 
-        # down spoke
+        # prepare for down spokes
+        reader.SetFileName(downFileName)
+        reader.Update()
+        downSpokes = reader.GetOutput()
+
         downSpoke_polyData = vtk.vtkPolyData()
+        downSpoke_lines = vtk.vtkCellArray()
+        downSpoke_points = vtk.vtkPoints()
+
+        downPointData = downSpokes.GetPointData()
+        arr_length = downPointData.GetArray('spokeLength')
+        arr_dirs = downPointData.GetArray('spokeDirection')
+        for i in range(downSpokes.GetNumberOfPoints()):
+            # tail of arrows
+            pt_tail = [0] * 3
+            downSpokes.GetPoint(i, pt_tail)
+            id0 = downSpoke_points.InsertNextPoint(pt_tail)
+
+            # head of arrows
+            pt_head = [0] * 3
+            spoke_length = arr_length.GetValue(i)
+            baseIdx = i * 3
+            dirX = arr_dirs.GetValue(baseIdx)
+            dirY = arr_dirs.GetValue(baseIdx+1)
+            dirZ = arr_dirs.GetValue(baseIdx+2)
+            pt_head[0] = pt_tail[0] + spoke_length * dirX
+            pt_head[1] = pt_tail[1] + spoke_length * dirY
+            pt_head[2] = pt_tail[2] + spoke_length * dirZ
+            id1 = downSpoke_points.InsertNextPoint(pt_head)
+
+            # connection between head and tail
+            con = vtk.vtkLine()
+            con.GetPointIds().SetId(0, id0)
+            con.GetPointIds().SetId(1, id1)
+            downSpoke_lines.InsertNextCell(con)
+
         downSpoke_polyData.SetPoints(downSpoke_points)
         downSpoke_polyData.SetLines(downSpoke_lines)
 
@@ -406,30 +338,146 @@ class parserLogic(ScriptedLoadableModuleLogic):
         scene.AddNode(downSpoke_model)
 
         # crest spoke
-        crestSpoke_polyData = vtk.vtkPolyData()
-        crestSpoke_polyData.SetPoints(crestSpoke_points)
-        crestSpoke_polyData.SetLines(crestSpoke_lines)
+        new_reader = vtk.vtkXMLPolyDataReader()
+        new_reader.SetFileName(crestFileName)
+        new_reader.Update()
+        foldCurve_polyData = new_reader.GetOutput()
+        foldPointData = foldCurve_polyData.GetPointData()
+        arr_length = foldPointData.GetArray('spokeLength')
+        arr_dirs = foldPointData.GetArray('spokeDirection')
+        crest_arrows_polydata = vtk.vtkPolyData()
+        crest_arrows_points = vtk.vtkPoints()
+        crest_arrows_lines = vtk.vtkCellArray()
+        for i in range(foldCurve_polyData.GetNumberOfPoints()):
+            # tail of crest arrows
+            pt_tail = [0] * 3
+            foldCurve_polyData.GetPoint(i, pt_tail)
+            id0 = crest_arrows_points.InsertNextPoint(pt_tail)
 
+            # head of crest arrows
+            pt_head = [0] * 3
+            spoke_length = arr_length.GetValue(i)
+            baseIdx = i * 3
+            dirX = arr_dirs.GetValue(baseIdx)
+            dirY = arr_dirs.GetValue(baseIdx + 1)
+            dirZ = arr_dirs.GetValue(baseIdx + 2)
+            pt_head[0] = pt_tail[0] + spoke_length * dirX
+            pt_head[1] = pt_tail[1] + spoke_length * dirY
+            pt_head[2] = pt_tail[2] + spoke_length * dirZ
+            id1 = crest_arrows_points.InsertNextPoint(pt_head)
+
+            crest_line = vtk.vtkLine()
+            crest_line.GetPointIds().SetId(0, id0)
+            crest_line.GetPointIds().SetId(1, id1)
+            crest_arrows_lines.InsertNextCell(crest_line)
+
+        crest_arrows_polydata.SetPoints(crest_arrows_points)
+        crest_arrows_polydata.SetLines(crest_arrows_lines)
+
+        # show crest arrows
         crestSpoke_model = slicer.vtkMRMLModelNode()
         crestSpoke_model.SetScene(scene)
         crestSpoke_model.SetName("Crest Spoke")
-        crestSpoke_model.SetAndObservePolyData(crestSpoke_polyData)
-        # model display node for the down spoke
+        crestSpoke_model.SetAndObservePolyData(crest_arrows_polydata)
+        # model display node 
         crestSpoke_model_display = slicer.vtkMRMLModelDisplayNode()
-        crestSpoke_model_display.SetColor(1, 0, 0)
+        crestSpoke_model_display.SetColor(1, 1, 0)
         crestSpoke_model_display.SetScene(scene)
         crestSpoke_model_display.SetLineWidth(3.0)
         crestSpoke_model_display.SetBackfaceCulling(0)
         scene.AddNode(crestSpoke_model_display)
         crestSpoke_model.SetAndObserveDisplayNodeID(crestSpoke_model_display.GetID())
         scene.AddNode(crestSpoke_model)
-        #
 
+        # show fold curve
+        foldCurve_model = slicer.vtkMRMLModelNode()
+        foldCurve_model.SetScene(scene)
+        foldCurve_model.SetName("Fold Curve")
+        foldCurve_model.SetAndObservePolyData(foldCurve_polyData)
+        # model display node 
+        foldCurve_model_display = slicer.vtkMRMLModelDisplayNode()
+        foldCurve_model_display.SetColor(1, 1, 0)
+        foldCurve_model_display.SetScene(scene)
+        foldCurve_model_display.SetLineWidth(3.0)
+        foldCurve_model_display.SetBackfaceCulling(0)
+        scene.AddNode(foldCurve_model_display)
+        foldCurve_model.SetAndObserveDisplayNodeID(foldCurve_model_display.GetID())
+        scene.AddNode(foldCurve_model)
+
+        # show connections to fold curve point from nearby interior points
+        # compute the nearest interior point
+        connection_polydata = vtk.vtkPolyData()
+        connection_points = vtk.vtkPoints()
+        connection_lines = vtk.vtkCellArray()
+        for i in range(foldCurve_polyData.GetNumberOfPoints()):
+            min_dist = 100000.0
+            nearest_index = 0
+            pt_fold = [0] * 3
+            foldCurve_polyData.GetPoint(i, pt_fold)
+            id0 = connection_points.InsertNextPoint(pt_fold)
+            
+            for j in range(upSpokes.GetNumberOfPoints()):
+                pt_interior = [0]* 3
+                upSpokes.GetPoint(j, pt_interior)
+                dist = math.sqrt((pt_fold[0] - pt_interior[0]) ** 2 + (pt_fold[1] - pt_interior[1]) ** 2 + (pt_fold[2] - pt_interior[2]) ** 2 )
+                if dist < min_dist:
+                    min_dist = dist
+                    nearest_index = j
+
+            pt_nearest_interior = upSpokes.GetPoint(nearest_index)
+            id1 = connection_points.InsertNextPoint(pt_nearest_interior)
+            line = vtk.vtkLine()
+
+            line.GetPointIds().SetId(0, id0)
+            line.GetPointIds().SetId(1, id1)
+
+            connection_lines.InsertNextCell(line)
+
+        connection_polydata.SetPoints(connection_points)
+        connection_polydata.SetLines(connection_lines)
+        connection_model = slicer.vtkMRMLModelNode()
+        connection_model.SetScene(scene)
+        connection_model.SetName("Connection to Fold Curve")
+        connection_model.SetAndObservePolyData(connection_polydata)
+        # model display node 
+        connection_model_display = slicer.vtkMRMLModelDisplayNode()
+        connection_model_display.SetColor(0, 0, 0)
+        connection_model_display.SetScene(scene)
+        connection_model_display.SetLineWidth(3.0)
+        connection_model_display.SetBackfaceCulling(0)
+        scene.AddNode(connection_model_display)
+        connection_model.SetAndObserveDisplayNodeID(connection_model_display.GetID())
+        scene.AddNode(connection_model)
+
+    def run(self,renderFlag):
+
+        """
+        Run the actual algorithm
+        """
+        filename = qt.QFileDialog.getOpenFileName()
+        if filename == '':
+            logging.error('Input file name is empty')
+            return False
+        
+        logging.info('Processing started')
+        if filename.endswith('.m3d'):
+            newSrepFile = self.transformLegacySrep(filename)
+            self.visualizeNewSrep(newSrepFile)
+        elif filename.endswith('.xml'):
+            logging.info('The input is new s-rep')
+            self.visualizeNewSrep(filename)
+        else:
+            logging.error('Need legacy s-rep(*.m3d) or new s-rep files.')
+            return False
+            
         logging.info('Processing completed')
         return True
+    def transformLegacySrep(self, filename):
+        logging.info('The input is legacy s-rep, now converting to new s-rep')
+        transformer().transformLegacySrep(filename, '/playpen/workspace/ra_job/newSrepVisualizer/', 0.02)
 
 
-class parserTest(ScriptedLoadableModuleTest):
+class visualizerTest(ScriptedLoadableModuleTest):
     """
     This is the test case for your scripted module.
     Uses ScriptedLoadableModuleTest base class, available at:
@@ -445,9 +493,9 @@ class parserTest(ScriptedLoadableModuleTest):
         """Run as few or as many tests as needed here.
         """
         self.setUp()
-        self.test_parser1()
+        self.test_visualizer1()
 
-    def test_parser1(self):
+    def test_visualizer1(self):
         """ Ideally you should have several levels of tests.  At the lowest level
         tests should exercise the functionality of the logic with different inputs
         (both valid and invalid).  At higher levels your tests should emulate the
@@ -464,6 +512,6 @@ class parserTest(ScriptedLoadableModuleTest):
         # first, get some data
         #
         volumeNode = slicer.util.getNode(pattern="FA")
-        logic = parserLogic()
+        logic = visualizerLogic()
         self.assertIsNotNone(logic.hasImageData(volumeNode))
         self.delayDisplay('Test passed!')
