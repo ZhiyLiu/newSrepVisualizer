@@ -1,4 +1,4 @@
-# legacySrepTransformer
+# new s-rep extension
 # author: Zhiyuan Liu
 # date: 2018.6.7
 
