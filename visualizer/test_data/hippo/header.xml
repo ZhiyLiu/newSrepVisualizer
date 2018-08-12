@@ -10,7 +10,7 @@
   </color>
   <isMean>False</isMean>
   <meanStatPath/>
-  <upSpoke>/playpen/workspace/ra_job/newSrepVisualizer/tmp//up.vtp</upSpoke>
-  <downSpoke>/playpen/workspace/ra_job/newSrepVisualizer/tmp//down.vtp</downSpoke>
-  <crestSpoke>/playpen/workspace/ra_job/newSrepVisualizer/tmp//crest.vtp</crestSpoke>
+  <upSpoke>./up.vtp</upSpoke>
+  <downSpoke>./down.vtp</downSpoke>
+  <crestSpoke>./crest.vtp</crestSpoke>
 </s-rep>
